@@ -1,0 +1,142 @@
+MASTER INSTRUCTIONS (apply to every topic below)
+Role: Act as an AI Document Writer and AI Tutor.
+Audience: Learners starting this subject (write clearly without saying it’s for beginners).
+Critical rule: Do NOT use the words “tutorial(s)”, “beginner(s)”, or “course” anywhere in the content.
+Deliverable: One Microsoft Word (.docx) file per topic listed below — each self‑contained.
+Tone: Clear, practical, and structured. Avoid hype; focus on accurate, actionable guidance.
+Depth: Explain concepts plainly, then deepen with diagrams-as-text, real-time examples, and a small lab.
+Formatting (use Word headings/tables/lists):
+  • H1 for the topic title
+  • H2 for major sections
+  • Use bullet lists, numbered steps, callouts (“Note:”, “Tip:”, “Warning:”)
+  • Include at least one comparison table and one checklist
+  • For any diagram, describe it in words (ASCII or bullet layout) so it can be redrawn later
+Include in every file (in this order):
+  1) Title
+  2) Learning objectives (5–8 bullets)
+  3) Prerequisites (tools/skills)
+  4) Executive overview (150–250 words)
+  5) Core concepts (well-explained subsections)
+  6) Real-time examples (2–3 short scenarios relevant to business/education)
+  7) Hands-on lab (step-by-step; no external data needed; simple and safe)
+  8) Pitfalls & anti-patterns
+  9) Comparison table (choose the most useful comparison for the topic)
+  10) Tools & workflows (frameworks, libraries, cloud options)
+  11) Metrics & evaluation
+  12) Security, privacy, and compliance notes
+  13) Checklist (ready-to-use steps)
+  14) Glossary (12–20 terms)
+  15) 6-question self-check (with brief answers on the last page)
+Style constraints:
+  • Use plain English. Prefer short paragraphs.
+  • Provide code or pseudo-code blocks only when they add value.
+  • Cite examples generically (no vendor lock-in claims).
+
+====================================================================
+TOPIC 1 — Intro to Generative AI
+Subtopics to cover:
+  • Generative vs. discriminative modeling (what/why)
+  • Transformers in simple terms: tokens, embeddings, attention, context window
+  • Decoding & sampling: temperature, top‑p, top‑k, repetition penalty
+  • Prompt design patterns: role+instruction, few‑shot, JSON output, chain‑of‑thought (summarized), structured extraction
+  • Retrieval‑Augmented Generation (RAG): chunking, embeddings, vector search, grounding, citations
+  • Fine‑tuning & adapters (LoRA/PEFT) vs. prompt‑only approaches
+  • Evaluation: factuality, robustness, toxicity, cost/latency
+  • Deployment: API wrapper, caching, streaming, observability
+  • Safety & governance: PII handling, content filters, human‑in‑the‑loop
+  • Real-time cases: email drafting with policy context; FAQ responder with citations
+
+Produce a single .docx file titled: “Intro_to_Generative_AI.docx”.
+
+====================================================================
+TOPIC 2 — Large Language Models (LLMs)
+Subtopics to cover:
+  • Tokenization and vocabulary; positional encodings; attention at a glance
+  • Pretraining vs. instruction‑tuning vs. preference alignment
+  • Context length trade‑offs; long‑context prompting strategies
+  • Tool use: function calling, code execution, web/retrieval connectors
+  • Guardrails: schema‑bounded outputs (JSON), validators, allow/deny policies
+  • Hallucination sources and mitigation (retrieval, verification, constrained decoding)
+  • Benchmarks & evaluation methods (task accuracy, groundedness, judge‑based eval)
+  • Latency & cost levers (prompt size, batch, caching); observability
+  • Privacy models: local, on‑prem, or cloud with data controls
+  • Real-time cases: analytics assistant that writes SQL; document Q&A with citations
+
+Produce a single .docx file titled: “Large_Language_Models_LLMs.docx”.
+
+====================================================================
+TOPIC 3 — Ethical AI and responsible development
+Subtopics to cover:
+  • Principles: fairness, accountability, transparency, safety, privacy
+  • Data lifecycle: consent, collection minimization, retention, provenance
+  • Bias: sampling, labeling, measurement; bias testing and remediation
+  • Safety controls: abuse handling, sensitive topics, user protections, rate limits
+  • Documentation: model cards, data statements, incident playbooks
+  • Human oversight: review workflows, escalation, appeals
+  • Regulatory touchpoints: data protection and sectoral obligations (describe generically), audit trails
+  • Risk assessment: threat modeling, misuse analysis, red‑teaming
+  • Monitoring in production: drift, harmful‑output rate, rollback plans
+  • Real-time cases: customer‑support assistant with guardrails; procurement policy extractor with verification
+
+Produce a single .docx file titled: “Ethical_AI_and_Responsible_Development.docx”.
+
+====================================================================
+TOPIC 4 — Claude 3 family
+Subtopics to cover:
+  • Model family overview and positioning (quality vs. speed trade‑offs)
+  • Typical strengths: reasoning, summarization, structured extraction
+  • Long‑context practices: retrieval chunking, section‑aware prompts
+  • Tool use & JSON modes: patterns for schema-first outputs
+  • Prompt recipes: policy extraction, contract summarization, coding helper
+  • Evaluation checklist specific to reasoning/extraction tasks
+  • Cost/latency planning and batching strategies
+  • Safety practices and escalation guidance
+  • Real-time cases: policy-to‑JSON pipeline; research summarizer with citations
+
+Produce a single .docx file titled: “Claude_3_Family.docx”.
+
+====================================================================
+TOPIC 5 — GPT‑Series
+Subtopics to cover:
+  • Series overview and typical capabilities (reasoning, code, multimodal where applicable)
+  • Function calling & tool invocation patterns
+  • Structured outputs: JSON schema and validation
+  • Retrieval workflows and chunking heuristics
+  • Prompting tips for planning and stepwise reasoning (brief, safe)
+  • Evaluation & monitoring: correctness, latency, token usage
+  • Integration patterns: analytics assistant, code assistant, content drafting
+  • Safety and policy alignment strategies
+  • Real-time cases: sales‑insight assistant with SQL tools; code fixer with tests
+
+Produce a single .docx file titled: “GPT_Series.docx”.
+
+====================================================================
+TOPIC 6 — Gemini Models
+Subtopics to cover:
+  • Multimodality basics: text+image+audio/video inputs
+  • Screenshot & PDF understanding: prompt packaging tips
+  • Vision‑language tasks: classification, OCR+reasoning, step‑by‑step guidance
+  • Mixed‑modality RAG strategies (text+image chunks)
+  • Output controls, grounding, and verification
+  • Latency/cost considerations for multimodal tasks
+  • Safety & privacy for images and documents
+  • Real-time cases: ops runbook from screenshots; educational walk‑through with formulas + diagrams
+
+Produce a single .docx file titled: “Gemini_Models.docx”.
+
+====================================================================
+TOPIC 7 — Open‑source alternatives (Mistral, Llama, etc.)
+Subtopics to cover:
+  • Model selection by size/license; when to choose open‑source
+  • Local inference: CPU/GPU trade‑offs, quantization, batching
+  • Serving stacks: vLLM, Text‑Generation‑Inference, Ollama
+  • RAG stacks: FAISS/Pinecone/pgvector + LlamaIndex/LangChain (generic guidance)
+  • Fine‑tuning approaches: LoRA/PEFT, supervised vs. preference optimization
+  • Security & governance on‑prem: secrets, network isolation, access control
+  • Cost modeling: hardware vs. cloud; utilization and scaling
+  • Evaluation harness: golden sets, judge prompts, regression tests
+  • Real-time cases: private Q&A on SOPs; JSON extractor for procurement inbox
+
+Produce a single .docx file titled: “Open_Source_Models_Mistral_Llama.docx”.
+
+END OF PROMPT

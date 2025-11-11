@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Processing in Prompt Engineering</title>
+<style>
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.6;
+        margin: 30px;
+        background-color: #f9f9fb;
+        color: #222;
+    }
+    h1, h2, h3 {
+        color: #4B0082;
+    }
+    pre, code {
+        background-color: #f4f4f4;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        font-family: Consolas, monospace;
+        overflow-x: auto;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 10px;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background-color: #eaeaff;
+    }
+    .diagram {
+        background-color: #eef;
+        border-left: 4px solid #4B0082;
+        padding: 10px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre;
+    }
+    .note {
+        background-color: #ffffe0;
+        border-left: 4px solid #ffcc00;
+        padding: 10px;
+        margin: 10px 0;
+    }
+</style>
+</head>
+<body>
+
+<h1>🧠 Text Processing in Prompt Engineering</h1>
+<p>Text processing is a crucial step in <strong>Prompt Engineering</strong> and <strong>Natural Language Processing (NLP)</strong>. It prepares raw human text into a machine-understandable format before passing it into a model.</p>
+
+<hr>
+
+<h2>🌿 Overview</h2>
+<div class="diagram">
+Text Processing
+├── Text Normalization
+│   ├── 1. Cleaning input text
+│   ├── 2. Handling spacing around punctuation
+│
+└── Tokenization
+    ├── 3. Converting text to tokens (subwords/words/punctuation)
+    ├── 4. Using algorithms like BPE or WordPiece
+    └── 5. Creating special tokens (&lt;BOS&gt;, &lt;EOS&gt;)
+</div>
+
+<hr>
+
+<h2>🔹 1. Text Normalization</h2>
+<h3>Definition</h3>
+<p>Text normalization standardizes raw text to a uniform format. It involves removing unwanted characters, fixing spacing and punctuation, and converting text to lowercase.</p>
+
+<h3>Python Example</h3>
+<pre><code>import re
+
+text = "Hello!!!  This   is   an Example...   "
+print("Original Text:", text)
+
+# Step 1: Clean extra punctuation and spaces
+clean_text = re.sub(r'[!?.]+', '.', text)
+clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+clean_text = clean_text.lower()
+
+print("Cleaned Text:", clean_text)
+</code></pre>
+
+<p><strong>Output</strong></p>
+<pre><code>Original Text: Hello!!!  This   is   an Example...
+Cleaned Text: hello. this is an example.
+</code></pre>
+
+<div class="note">🧩 <strong>Purpose:</strong> Helps models interpret text consistently without ambiguity.</div>
+
+<hr>
+
+<h2>🔹 2. Handling Spacing Around Punctuation</h2>
+<h3>Definition</h3>
+<p>Ensures punctuation marks are treated as separate tokens. Without this, “Hello,world!” would be read as a single token.</p>
+
+<h3>Python Example</h3>
+<pre><code>text = "Hello,world!Let's test:spacing."
+print("Before:", text)
+
+spaced_text = re.sub(r'([,.!?;:])', r' \1 ', text)
+spaced_text = re.sub(r'\s+', ' ', spaced_text).strip()
+
+print("After:", spaced_text)
+</code></pre>
+
+<p><strong>Output</strong></p>
+<pre><code>Before: Hello,world!Let's test:spacing.
+After: Hello , world ! Let's test : spacing .
+</code></pre>
+
+<hr>
+
+<h2>🔹 3. Tokenization</h2>
+<h3>Definition</h3>
+<p>Tokenization splits text into <strong>smaller units (tokens)</strong> that can be words, subwords, or punctuation.</p>
+
+<h3>Python Example</h3>
+<pre><code>from nltk.tokenize import word_tokenize
+import nltk
+nltk.download('punkt')
+
+sentence = "Let's learn tokenization in AI!"
+tokens = word_tokenize(sentence)
+print("Tokens:", tokens)
+</code></pre>
+
+<p><strong>Output</strong></p>
+<pre><code>Tokens: ['Let', "'s", 'learn', 'tokenization', 'in', 'AI', '!']
+</code></pre>
+
+<div class="note">🧩 <strong>Purpose:</strong> Breaks down text into model-understandable pieces.</div>
+
+<hr>
+
+<h2>🔹 4. Using Algorithms like BPE or WordPiece</h2>
+<h3>Definition</h3>
+<ul>
+<li><strong>BPE (Byte Pair Encoding):</strong> Builds vocabulary by merging common character pairs.</li>
+<li><strong>WordPiece:</strong> Predicts subword units maximizing likelihood (used in BERT).</li>
+</ul>
+
+<h3>Python Example</h3>
+<pre><code>from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+text = "Artificial Intelligence revolutionizes industries!"
+tokens = tokenizer.tokenize(text)
+print("Subword Tokens:", tokens)
+</code></pre>
+
+<p><strong>Output</strong></p>
+<pre><code>Subword Tokens: ['artificial', 'intelligence', 'revolution', '##izes', 'industries', '!']
+</code></pre>
+
+<div class="note">🧩 <strong>Purpose:</strong> Efficiently handles rare or unseen words.</div>
+
+<hr>
+
+<h2>🔹 5. Creating Special Tokens (&lt;BOS&gt;, &lt;EOS&gt;)</h2>
+<h3>Definition</h3>
+<p>Special tokens mark key positions in a sequence:</p>
+<ul>
+<li><code>&lt;BOS&gt;</code> → Beginning of sentence</li>
+<li><code>&lt;EOS&gt;</code> → End of sentence</li>
+<li><code>&lt;PAD&gt;</code> → Padding</li>
+<li><code>&lt;UNK&gt;</code> → Unknown word</li>
+</ul>
+
+<h3>Python Example</h3>
+<pre><code>sentence = "Text processing is essential."
+processed_sentence = "&lt;BOS&gt; " + sentence + " &lt;EOS&gt;"
+print(processed_sentence)
+</code></pre>
+
+<p><strong>Output</strong></p>
+<pre><code>&lt;BOS&gt; Text processing is essential. &lt;EOS&gt;
+</code></pre>
+
+<hr>
+
+<h2>🧠 Summary Table</h2>
+<table>
+<tr><th>Step</th><th>Process</th><th>Purpose</th><th>Example</th></tr>
+<tr><td>1</td><td>Text Cleaning</td><td>Remove noise</td><td>"Hello!!!" → "hello."</td></tr>
+<tr><td>2</td><td>Handle Spacing</td><td>Separate punctuation</td><td>"Hello,world!" → "Hello , world !"</td></tr>
+<tr><td>3</td><td>Tokenization</td><td>Split text into tokens</td><td>"AI is fun" → ["AI","is","fun"]</td></tr>
+<tr><td>4</td><td>BPE / WordPiece</td><td>Handle rare words</td><td>"revolutionizes" → "revolution","##izes"</td></tr>
+<tr><td>5</td><td>Special Tokens</td><td>Define structure</td><td>&lt;BOS&gt; sentence &lt;EOS&gt;</td></tr>
+</table>
+
+<hr>
+
+<h2>💡 Mini Lab — Complete Pipeline</h2>
+<pre><code>from transformers import AutoTokenizer
+import re
+
+# Step 1: Input text
+text = "  AI revolutionizes,Industries!!!   "
+
+# Step 2: Normalization
+text = text.lower().strip()
+text = re.sub(r'[!?.]+', '.', text)
+text = re.sub(r'\s+', ' ', text)
+text = re.sub(r'([,.!?;:])', r' \1 ', text)
+text = re.sub(r'\s+', ' ', text)
+
+# Step 3: Tokenization
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+tokens = tokenizer.tokenize(text)
+
+# Step 4: Add special tokens
+final_input = ["&lt;BOS&gt;"] + tokens + ["&lt;EOS&gt;"]
+
+print("Processed Input:", final_input)
+</code></pre>
+
+<p><strong>Output</strong></p>
+<pre><code>Processed Input: ['&lt;BOS&gt;', 'ai', 'revolution', '##izes', ',', 'industries', '.', '&lt;EOS&gt;']
+</code></pre>
+
+<hr>
+
+<h2>🏁 Key Takeaway</h2>
+<p>Text processing bridges the gap between <strong>raw text</strong> and <strong>machine understanding</strong>. By following these five steps, we ensure the text input is consistent, tokenized correctly, and ready for model training or inference.</p>
+
+</body>
+</html>
