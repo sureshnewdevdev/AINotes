@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Models & Ethical Development — Guided Learning with Python</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #ffffff;
+        color: #333;
+        display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 250px;
+        background-color: #7b3fe4;
+        color: white;
+        height: 100vh;
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+        background-color: #5e2fbf;
+    }
+
+    /* Main Content */
+    .content {
+        margin-left: 250px;
+        padding: 30px;
+        line-height: 1.6;
+        max-width: 900px;
+    }
+
+    h1, h2 {
+        color: #5e2fbf;
+    }
+
+    pre {
+        background-color: #f3ecff;
+        padding: 15px;
+        border-left: 4px solid #7b3fe4;
+        overflow-x: auto;
+        border-radius: 8px;
+    }
+
+    code {
+        font-family: 'Consolas', monospace;
+        font-size: 0.95em;
+    }
+
+    .diagram {
+        background-color: #faf8ff;
+        border: 1px dashed #b69aff;
+        padding: 10px;
+        border-radius: 6px;
+        font-family: monospace;
+        white-space: pre;
+        overflow-x: auto;
+    }
+
+    .try-box {
+        border: 2px solid #7b3fe4;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 10px;
+        background-color: #f8f3ff;
+    }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>AI Topics</h2>
+    <a href="#ethical-ai">1. Ethical AI</a>
+    <a href="#claude">2. Claude 3 Family</a>
+    <a href="#gpt">3. GPT Series</a>
+    <a href="#gemini">4. Gemini Models</a>
+    <a href="#opensource">5. Open Source AI</a>
+    <a href="#summary">6. Comparison Summary</a>
+</div>
+
+<div class="content">
+
+    <h1 id="ethical-ai">1. Ethical AI and Responsible Development</h1>
+    <p>Ethical AI ensures that Artificial Intelligence is designed and used in a way that benefits humans while minimizing harm. Responsible development focuses on fairness, transparency, accountability, and privacy protection.</p>
+
+    <h3>Core Principles:</h3>
+    <ul>
+        <li><b>Fairness:</b> Avoid bias in training data.</li>
+        <li><b>Transparency:</b> Explain how models make decisions.</li>
+        <li><b>Accountability:</b> Keep humans in control of AI outcomes.</li>
+        <li><b>Privacy:</b> Protect user data responsibly.</li>
+    </ul>
+
+    <h3>Python Example – Detecting Bias in Data</h3>
+    <pre><code class="language-python">
+import pandas as pd
+
+# Sample dataset
+data = pd.DataFrame({
+    'Gender': ['Male', 'Female', 'Male', 'Female', 'Female'],
+    'Hired': [1, 0, 1, 0, 0]
+})
+
+# Check hiring rate by gender
+bias_check = data.groupby('Gender')['Hired'].mean()
+print("Hiring Rate by Gender:")
+print(bias_check)
+    </code></pre>
+
+    <div class="diagram">
+    [Dataset] → [AI Model Training]
+          ↓
+     [Ethical Checks]
+          ↓
+     [Fair + Transparent Decisions]
+    </div>
+
+    <div class="try-box">
+        💡 <b>Try It Yourself:</b> Change “Hired” values and re-run the code to observe how bias appears when one group is favored.
+    </div>
+
+    <hr>
+
+    <h1 id="claude">2. Claude 3 Family</h1>
+    <p>The Claude 3 models (Opus, Sonnet, Haiku) are developed by Anthropic. They are designed to understand nuanced prompts, reason safely, and avoid generating harmful content.</p>
+
+    <h3>Key Features:</h3>
+    <ul>
+        <li>Trained using <b>Constitutional AI</b> – guided by ethical principles.</li>
+        <li>Improved contextual understanding and safety alignment.</li>
+        <li>Efficient for summarization, document Q&A, and multi-step reasoning.</li>
+    </ul>
+
+    <h3>Python Example – Simulated Claude Prompt</h3>
+    <pre><code class="language-python">
+prompt = "Explain why AI transparency is important."
+response = "AI transparency helps users trust decisions and debug model errors."
+print("Claude Response:", response)
+    </code></pre>
+
+    <div class="diagram">
+    [Input Prompt] → [Constitutional AI Rules] → [Claude 3 Reasoning Engine] → [Safe Response Output]
+    </div>
+
+    <div class="try-box">
+        💬 <b>Try It Yourself:</b> Change the prompt to ask Claude for an ethical dilemma and see what kind of safe answer it returns.
+    </div>
+
+    <hr>
+
+    <h1 id="gpt">3. GPT Series (Generative Pre-trained Transformer)</h1>
+    <p>The GPT series by OpenAI (GPT-1 → GPT-5) introduced the Transformer architecture that revolutionized language modeling.</p>
+
+    <h3>How GPT Works:</h3>
+    <div class="diagram">
+    [Text Input]
+        ↓
+    [Tokenizer → Converts words to numbers]
+        ↓
+    [Transformer Layers → Multi-head Self-Attention]
+        ↓
+    [Next Word Prediction → Output Text]
+    </div>
+
+    <h3>Python Example – Tokenization Demo</h3>
+    <pre><code class="language-python">
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+text = "Artificial Intelligence is amazing!"
+tokens = tokenizer.tokenize(text)
+print(tokens)
+    </code></pre>
+
+    <div class="try-box">
+        🚀 <b>Try It Yourself:</b> Modify the text to see how GPT tokenizes emojis, punctuation, or mixed languages.
+    </div>
+
+    <hr>
+
+    <h1 id="gemini">4. Gemini Models (Google DeepMind)</h1>
+    <p>Gemini combines the power of large language models with multimodal reasoning — meaning it can handle text, images, audio, and video together.</p>
+
+    <h3>Key Abilities:</h3>
+    <ul>
+        <li>Understands and reasons across multiple data types.</li>
+        <li>Strong mathematical and coding performance.</li>
+        <li>Integrated with Google ecosystem (Docs, Search, YouTube).</li>
+    </ul>
+
+    <div class="diagram">
+    [Text] + [Image] + [Audio]
+            ↓
+      [Multimodal Encoder]
+            ↓
+     [Gemini Reasoning Model]
+            ↓
+      [Insightful Output]
+    </div>
+
+    <h3>Python Example – Multimodal Simulation</h3>
+    <pre><code class="language-python">
+text_input = "Describe this chart"
+image_input = "bar_chart.png"
+
+print("Gemini would analyze", image_input, "and explain patterns in text.")
+    </code></pre>
+
+    <div class="try-box">
+        🧠 <b>Try It Yourself:</b> Imagine uploading a graph — what questions could Gemini answer about it?
+    </div>
+
+    <hr>
+
+    <h1 id="opensource">5. Open-Source Alternatives (Mistral, LLaMA, Falcon, etc.)</h1>
+    <p>Open-source models provide flexibility, transparency, and customization. Popular ones include <b>Mistral</b> (efficient transformer), <b>LLaMA</b> (Meta’s family), and <b>Falcon</b> (optimized for inference).</p>
+
+    <div class="diagram">
+    [Community Data] → [Open Training] → [Lightweight Model]
+           ↓
+     [Developer Fine-tuning] → [Custom Deployment]
+    </div>
+
+    <h3>Python Example – Using an Open Model</h3>
+    <pre><code class="language-python">
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_name = "mistralai/Mistral-7B-v0.1"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+
+print("Model Loaded Successfully!")
+    </code></pre>
+
+    <div class="try-box">
+        🧩 <b>Try It Yourself:</b> Replace <code>mistralai/Mistral-7B-v0.1</code> with another open model name like <code>meta-llama/Llama-3</code>.
+    </div>
+
+    <hr>
+
+    <h1 id="summary">6. Comparison Summary</h1>
+    <table border="1" cellspacing="0" cellpadding="8">
+        <tr style="background-color:#7b3fe4; color:white;">
+            <th>Model</th>
+            <th>Organization</th>
+            <th>Focus Area</th>
+            <th>Key Strength</th>
+        </tr>
+        <tr><td>Claude 3</td><td>Anthropic</td><td>Safety, reasoning</td><td>Ethical alignment</td></tr>
+        <tr><td>GPT-4/5</td><td>OpenAI</td><td>Language generation</td><td>General intelligence</td></tr>
+        <tr><td>Gemini</td><td>Google DeepMind</td><td>Multimodal reasoning</td><td>Cross-media understanding</td></tr>
+        <tr><td>Mistral/LLaMA</td><td>Open Source</td><td>Transparency, control</td><td>Custom fine-tuning</td></tr>
+    </table>
+
+    <div class="diagram" style="margin-top:20px;">
+    🌐 Unified AI Evolution
+    ┌────────────┬──────────┬──────────────┐
+    │ Claude 3   │ GPT-4/5  │ Gemini       │
+    ├────────────┼──────────┼──────────────┤
+    │ Ethical AI │ Creativity │ Multimodal │
+    └────────────┴──────────┴──────────────┘
+             ↓
+        [Open Source Ecosystem]
+    </div>
+
+</div>
+</body>
+</html>
