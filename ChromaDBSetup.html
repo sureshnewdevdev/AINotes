@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChromaDB Installation Guide for Windows 11</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 40px; color: #222; line-height: 1.6; }
+    h1, h2, h3 { color: #0a4b8e; }
+    pre { background: #f4f4f4; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    code { font-family: Consolas, monospace; }
+    .step { border-left: 4px solid #0a4b8e; padding-left: 15px; margin-bottom: 30px; }
+    ul { margin-top: 5px; }
+</style>
+</head>
+<body>
+
+<h1>Installing ChromaDB on Windows 11 – Complete Step-by-Step Guide</h1>
+<p>This page provides the complete, correct, and beginner-friendly instructions to install <strong>ChromaDB</strong> on Windows 11, including Python setup, Build Tools installation, and verification.</p>
+
+<hr>
+
+<h2>📌 Step 1 — Install Python 3.11 (Recommended)</h2>
+<div class="step">
+    <p>Download Python from the official site:</p>
+    <p><strong>https://www.python.org/downloads</strong></p>
+
+    <p>During installation, make sure to enable:</p>
+    <ul>
+        <li><strong>Add Python to PATH</strong> ✓</li>
+        <li>Install launcher for all users</li>
+    </ul>
+
+    <p>Click <strong>Install</strong> and wait for it to complete.</p>
+
+    <h3>Verify Python installation</h3>
+    <pre><code>python --version
+pip --version</code></pre>
+</div>
+
+<hr>
+
+<h2>📌 Step 2 — Create a Project Folder</h2>
+<div class="step">
+    <pre><code>cd C:\Projects
+mkdir chroma-demo
+cd chroma-demo</code></pre>
+</div>
+
+<hr>
+
+<h2>📌 Step 3 — Create and Activate a Virtual Environment</h2>
+<div class="step">
+    <pre><code>python -m venv .venv</code></pre>
+    <h3>Activate the environment</h3>
+    <pre><code>.venv\Scripts\activate</code></pre>
+</div>
+
+<hr>
+
+<h2>📌 Step 4 — Upgrade Pip (Very Important)</h2>
+<div class="step">
+    <pre><code>pip install --upgrade pip setuptools wheel</code></pre>
+</div>
+
+<hr>
+
+<h2>📌 Step 5 — Install Microsoft Build Tools (Required for ChromaDB)</h2>
+<div class="step">
+    <p>Go to:</p>
+    <p><strong>https://visualstudio.microsoft.com/visual-cpp-build-tools/</strong></p>
+
+    <h3>Click this button:</h3>
+    <p><strong>➡ Download Build Tools</strong>  
+    (This is also called <em>Visual Studio Build Tools</em>)</p>
+
+    <h3>When the installer opens, select ONLY the following:</h3>
+
+    <pre><code>☑ Desktop development with C++</code></pre>
+
+    <p>This installs:</p>
+    <ul>
+        <li>MSVC C++ compiler</li>
+        <li>Windows 10/11 SDK</li>
+        <li>C++ CMake Tools</li>
+    </ul>
+
+    <p>These are required for building Python packages used by ChromaDB.</p>
+
+    <p>Click <strong>Install</strong> and wait until completed.</p>
+</div>
+
+<hr>
+
+<h2>📌 Step 6 — Install ChromaDB</h2>
+<div class="step">
+    <h3>Basic installation:</h3>
+    <pre><code>pip install chromadb</code></pre>
+
+    <h3>Install full server version (Optional but recommended):</h3>
+    <pre><code>pip install "chromadb[server]"</code></pre>
+</div>
+
+<hr>
+
+<h2>📌 Step 7 — Test ChromaDB Installation</h2>
+<div class="step">
+    <p>Create a test file:</p>
+    <pre><code>notepad test_chroma.py</code></pre>
+
+    <p>Paste this code:</p>
+    <pre><code>import chromadb
+
+client = chromadb.Client()
+collection = client.create_collection("demo")
+
+collection.add(
+    ids=["1"],
+    documents=["ChromaDB installation is successful!"]
+)
+
+result = collection.query(
+    query_texts=["successful"],
+    n_results=1
+)
+
+print(result)</code></pre>
+
+    <h3>Run the test</h3>
+    <pre><code>python test_chroma.py</code></pre>
+
+    <p>If you see results printed, ChromaDB is working correctly.</p>
+</div>
+
+<hr>
+
+<h2>📌 Step 8 — Optional: Start ChromaDB Server</h2>
+<div class="step">
+    <pre><code>chroma run</code></pre>
+    <p>It will run at:</p>
+    <strong>http://localhost:8000</strong>
+</div>
+
+<hr>
+
+<h2>📌 Troubleshooting (Most Common Issues)</h2>
+
+<div class="step">
+    <h3>❌ Error: Microsoft Visual C++ 14.0 required</h3>
+    <p>You did not install Build Tools.</p>
+    <p><strong>Fix:</strong> Install <em>Desktop Development with C++</em> workload.</p>
+
+    <h3>❌ Error: No module named chromadb</h3>
+    <p>Your virtual environment is not activated.</p>
+    <pre><code>.venv\Scripts\activate
+pip install chromadb</code></pre>
+
+    <h3>❌ pydantic-core / orjson build failure</h3>
+    <pre><code>pip install --upgrade pip setuptools wheel</code></pre>
+
+    <h3>❌ uvloop install error (Ignore)</h3>
+    <p>uvloop does not support Windows. ChromaDB will skip it automatically.</p>
+</div>
+
+<hr>
+
+<h2>🎉 Installation Complete!</h2>
+<p>You have successfully installed ChromaDB on Windows 11. You can now build RAG systems, embeddings search, and vector-based AI applications.</p>
+
+</body>
+</html>
