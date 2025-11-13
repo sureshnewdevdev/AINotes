@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector DB Exercises and Basic Operations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .exercise {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .code-section {
+            margin: 20px 0;
+        }
+        .explanation {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vector DB Exercises and Basic Operations</h1>
+        <p><em>Hands-on exercises and detailed explanations for Vector Database basics using Python and Chroma. Last updated: November 13, 2025.</em></p>
+
+        <h2>1. How to Connect with Vector DB (Python)</h2>
+        <p>To get started with a vector database in Python, we'll use Chroma, a lightweight and easy-to-use option. Chroma stores data locally on your machine.</p>
+        
+        <div class="explanation">
+            <h3>Prerequisites</h3>
+            <p>Install the required packages using pip:</p>
+            <pre><code>pip install chromadb sentence-transformers</code></pre>
+            <p><code>chromadb</code> is the vector DB library, and <code>sentence-transformers</code> helps create vector embeddings from text without needing an API key.</p>
+        </div>
+
+        <div class="code-section">
+            <h3>Connection Script</h3>
+            <p>This script connects to Chroma and creates a simple collection (like a table in a database).</p>
+            <pre><code>import chromadb
+from chromadb.utils import embedding_functions
+
+# Step 1: Create a client connection (local by default)
+client = chromadb.Client()
+
+# Step 2: Set up an embedding function (turns text into vectors)
+embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"  # A small, fast model
+)
+
+# Step 3: Create a collection (where data is stored)
+collection = client.create_collection(
+    name="my_first_collection",
+    embedding_function=embedding_function
+)
+
+print("Connected to Chroma and created collection 'my_first_collection'!")</code></pre>
+            <p>Run this in a Python file (e.g., <code>connect.py</code>) with <code>python connect.py</code>. You'll see the confirmation message.</p>
+            <p><strong>Explanation:</strong> The client manages connections. Collections hold your vectors. The embedding function automatically converts text to vectors.</p>
+        </div>
+
+        <h2>2. Explain the Vector DB Basic Operations</h2>
+        <p>Vector databases support CRUD-like operations (Create, Read, Update, Delete) plus similarity queries. Here's a breakdown:</p>
+        <ol>
+            <li><strong>Create/Add (Insert):</strong> Add new data (text/documents) with unique IDs. Vectors are generated automatically.</li>
+            <li><strong>Read/Get:</strong> Retrieve a specific item by ID or query for similar items using a search text.</li>
+            <li><strong>Update:</strong> Modify existing data by ID, which updates the vector too.</li>
+            <li><strong>Delete:</strong> Remove items by ID.</li>
+            <li><strong>Query/Search:</strong> Find top similar items based on vector closeness (uses metrics like cosine similarity).</li>
+        </ol>
+        <p>These operations are efficient for millions of vectors, thanks to indexing.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Method</th>
+                    <th>Purpose</th>
+                    <th>Example Use</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Add</td>
+                    <td><code>collection.add()</code></td>
+                    <td>Insert new vectors</td>
+                    <td>Storing new articles</td>
+                </tr>
+                <tr>
+                    <td>Get</td>
+                    <td><code>collection.get()</code></td>
+                    <td>Retrieve by ID</td>
+                    <td>Load a specific document</td>
+                </tr>
+                <tr>
+                    <td>Query</td>
+                    <td><code>collection.query()</code></td>
+                    <td>Similarity search</td>
+                    <td>Find similar questions</td>
+                </tr>
+                <tr>
+                    <td>Update</td>
+                    <td><code>collection.update()</code></td>
+                    <td>Modify existing</td>
+                    <td>Edit a product description</td>
+                </tr>
+                <tr>
+                    <td>Delete</td>
+                    <td><code>collection.delete()</code></td>
+                    <td>Remove items</td>
+                    <td>Delete outdated info</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. Basic Operations and Examples with All Required Scripts</h2>
+        <p>Below is a complete script demonstrating all basic operations. We'll use a theme: storing and querying fruit descriptions.</p>
+        
+        <div class="code-section">
+            <h3>Full Basic Operations Script</h3>
+            <pre><code>import chromadb
+from chromadb.utils import embedding_functions
+
+# Connection (from Section 1)
+client = chromadb.Client()
+embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+collection = client.get_or_create_collection(  # Use get_or_create to avoid errors if run multiple times
+    name="fruits",
+    embedding_function=embedding_function
+)
+
+# Operation 1: Add (Create/Insert)
+print("=== Adding Data ===")
+collection.add(
+    documents=[
+        "Apples are red and crisp fruits.",
+        "Bananas are yellow and curved.",
+        "Oranges are juicy citrus fruits.",
+        "Grapes grow in bunches and are sweet."
+    ],
+    ids=["fruit1", "fruit2", "fruit3", "fruit4"]
+)
+print("Added 4 fruit documents.")
+
+# Operation 2: Query (Search for similar)
+print("\n=== Querying ===")
+query_results = collection.query(
+    query_texts=["What is a sweet, juicy fruit?"],
+    n_results=2
+)
+print("Query Results:")
+print(f"IDs: {query_results['ids']}")
+print(f"Documents: {query_results['documents']}")
+print(f"Distances: {query_results['distances']}")  # Lower = more similar
+
+# Operation 3: Get (Read specific)
+print("\n=== Getting Specific ===")
+get_result = collection.get(ids=["fruit1"])
+print(f"Got fruit1: {get_result['documents']}")
+
+# Operation 4: Update
+print("\n=== Updating ===")
+collection.update(
+    ids=["fruit2"],
+    documents=["Bananas are yellow, curved, and great for smoothies."]
+)
+updated_get = collection.get(ids=["fruit2"])
+print(f"Updated fruit2: {updated_get['documents']}")
+
+# Operation 5: Delete
+print("\n=== Deleting ===")
+collection.delete(ids=["fruit4"])
+print("Deleted fruit4.")
+remaining = collection.get()
+print(f"Remaining count: {len(remaining['ids'][0])}")</code></pre>
+            <p><strong>Expected Output:</strong></p>
+            <ul>
+                <li>Adding: Confirmation message.</li>
+                <li>Query: Likely returns "Oranges..." and "Grapes..." with low distances (e.g., [0.2, 0.4]).</li>
+                <li>Get: Shows the apple description.</li>
+                <li>Update: Shows the new banana text.</li>
+                <li>Delete: Confirms 3 items left.</li>
+            </ul>
+            <p><strong>Run Tip:</strong> Save as <code>operations.py</code> and execute <code>python operations.py</code>. Rerun to see updates.</p>
+        </div>
+
+        <div class="explanation">
+            <h3>Key Notes on Operations</h3>
+            <ul>
+                <li><strong>Embeddings:</strong> Handled automatically by the function—text becomes a 384-dimensional vector here.</li>
+                <li><strong>Distances:</strong> In queries, values near 0 mean high similarity (cosine distance used by default).</li>
+                <li><strong>Metadata:</strong> You can add extra info like <code>metadatas=[{"color": "red"}, ...]</code> in add/update.</li>
+                <li><strong>Error Handling:</strong> Use <code>get_or_create_collection</code> for safe reruns.</li>
+            </ul>
+        </div>
+
+        <h2>4. Vector DB Exercises with Examples</h2>
+        <p>Try these exercises to practice. Each builds on the connection script. Solutions are provided below each.</p>
+
+        <div class="exercise">
+            <h3>Exercise 1: Add and Query Books</h3>
+            <p>Create a new collection "books". Add 3 book summaries. Query for "A mystery story with detectives."</p>
+            <p><strong>Your Task:</strong> Write the add and query code. Expect top results like mystery books.</p>
+            <pre><code># Starter code - fill in
+collection = client.create_collection(name="books", embedding_function=embedding_function)
+# Add your code here</code></pre>
+            <h4>Solution Example</h4>
+            <pre><code># Add
+collection.add(
+    documents=[
+        "A detective solves crimes in London.",
+        "A romance about two lovers in Paris.",
+        "A sci-fi adventure on Mars."
+    ],
+    ids=["book1", "book2", "book3"]
+)
+
+# Query
+results = collection.query(query_texts=["A mystery story with detectives."], n_results=1)
+print(results)  # Should return book1 with low distance</code></pre>
+        </div>
+
+        <div class="exercise">
+            <h3>Exercise 2: Update and Get with Metadata</h3>
+            <p>Using the "fruits" collection from the script, update "fruit1" to add metadata like category. Then get it.</p>
+            <p><strong>Your Task:</strong> Include metadata in update and print it.</p>
+            <pre><code># Starter
+# Assume collection exists</code></pre>
+            <h4>Solution Example</h4>
+            <pre><code># Update with metadata
+collection.update(
+    ids=["fruit1"],
+    documents=["Apples are red, crisp, and healthy."],
+    metadatas=[{"category": "fruit", "color": "red"}]
+)
+
+# Get with metadata
+result = collection.get(ids=["fruit1"], include=["metadatas"])
+print(result['metadatas'])  # Shows [{'category': 'fruit', 'color': 'red'}]</code></pre>
+            <p><strong>Explanation:</strong> Metadata is stored alongside vectors for filtering (e.g., query only red fruits).</p>
+        </div>
+
+        <div class="exercise">
+            <h3>Exercise 3: Filtered Query and Delete</h3>
+            <p>Add 2 more fruits with metadata. Query only "sweet" ones. Then delete one.</p>
+            <p><strong>Your Task:</strong> Use <code>where</code> for filtering.</p>
+            <pre><code># Add with metadata
+collection.add(
+    documents=["Strawberries are small and sweet.", "Lemons are sour citrus."],
+    ids=["fruit5", "fruit6"],
+    metadatas=[{"taste": "sweet"}, {"taste": "sour"}]
+)
+
+# Filtered query
+filtered_results = collection.query(
+    query_texts=["Juicy fruit?"],
+    n_results=2,
+    where={"taste": "sweet"}  # Only sweet ones
+)
+print(filtered_results)</code></pre>
+            <h4>Solution Extension: Delete</h4>
+            <pre><code>collection.delete(ids=["fruit6"])
+print("Deleted sour lemon!")</code></pre>
+            <p><strong>Expected:</strong> Query returns strawberries (and maybe oranges if tagged sweet).</p>
+        </div>
+
+        <h2>5. Next Steps</h2>
+        <ul>
+            <li>Experiment: Add 100+ items and time queries.</li>
+            <li>Advanced: Try hybrid search with keywords.</li>
+            <li>Resources: <a href="https://docs.trychroma.com/">Chroma Docs</a>.</li>
+        </ul>
+    </div>
+</body>
+</html>

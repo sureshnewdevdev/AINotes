@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Database Orientation Tutorial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            overflow-x: auto;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .example {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vector Database Orientation Tutorial</h1>
+        <p><em>A step-by-step guide to understanding and using vector databases. Last updated: November 13, 2025.</em></p>
+
+        <h2>Vectors Overview</h2>
+        <p>Vectors are like lists of numbers that represent things, such as words or pictures, in a way computers can understand and compare them.</p>
+        <p>For example, the word "cat" might become a vector like [0.2, -0.5, 1.1, 0.8]. Similar words like "kitten" would have vectors close to it.</p>
+
+        <div class="example">
+            <h3>Simple Example: Representing Words as Vectors</h3>
+            <p>Imagine we have three words: "cat", "dog", "apple". We can assign simple 2D vectors to them based on "animal" and "fruit" traits.</p>
+            <ul>
+                <li>Cat: [1, 0] (animal, not fruit)</li>
+                <li>Dog: [1, 0] (animal, not fruit)</li>
+                <li>Apple: [0, 1] (not animal, fruit)</li>
+            </ul>
+            <p>Now, "cat" and "dog" are close (same vector), while "apple" is different.</p>
+        </div>
+
+        <h3>Python Code: Creating Simple Vectors</h3>
+        <pre><code>import numpy as np
+
+# Create vectors for words
+cat = np.array([1, 0])
+dog = np.array([1, 0])
+apple = np.array([0, 1])
+
+# Check how similar cat and dog are (Euclidean distance)
+distance = np.linalg.norm(cat - dog)
+print("Distance between cat and dog:", distance)  # Output: 0.0 (very similar)</code></pre>
+        <p>This code uses NumPy to make vectors and measure distance. Install NumPy with <code>pip install numpy</code>.</p>
+
+        <h2>Vector DB Introduction</h2>
+        <p>A vector database (Vector DB) is a special storage system that holds these number lists (vectors) and helps you quickly find ones that are similar to a new vector you give it.</p>
+        <p>It's like a library where books are sorted by how alike their stories are, not by title or author.</p>
+
+        <div class="example">
+            <h3>Simple Example: Storing and Finding Vectors</h3>
+            <p>Store vectors for "cat", "dog", "apple". Then, query with a new vector [1, 0] (like "pet") and it finds "cat" and "dog" as matches.</p>
+        </div>
+
+        <h3>Python Code: Basic Vector Storage and Query</h3>
+        <pre><code>import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Simple "database" as a list of vectors and labels
+vectors_db = {
+    'cat': np.array([1, 0]),
+    'dog': np.array([1, 0]),
+    'apple': np.array([0, 1])
+}
+
+# Query vector
+query = np.array([1, 0])
+
+# Find similarities
+similarities = {}
+for label, vec in vectors_db.items():
+    sim = cosine_similarity([query], [vec])[0][0]
+    similarities[label] = sim
+
+# Sort by similarity (highest first)
+top_matches = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+print("Top matches:", top_matches[:2])  # Output: [('cat', 1.0), ('dog', 1.0)]</code></pre>
+        <p>This uses scikit-learn for similarity. Install with <code>pip install scikit-learn</code>. It's a tiny "DB" to start.</p>
+
+        <h2>Traditional Databases vs. Vector Databases</h2>
+        <p>Traditional databases (like SQL) store exact data like names or numbers and find matches using equality (e.g., "find name = 'John'").</p>
+        <p>Vector DBs store fuzzy number lists and find "close enough" matches based on similarity.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Traditional DB (e.g., SQL)</th>
+                    <th>Vector DB</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Data Type</td>
+                    <td>Text, numbers, dates</td>
+                    <td>Number lists (vectors)</td>
+                </tr>
+                <tr>
+                    <td>Query Type</td>
+                    <td>Exact match: =, LIKE</td>
+                    <td>Similarity: closest vectors</td>
+                </tr>
+                <tr>
+                    <td>Example Query</td>
+                    <td>SELECT * FROM users WHERE name = 'John'</td>
+                    <td>Find vectors similar to [0.2, -0.5]</td>
+                </tr>
+                <tr>
+                    <td>Best For</td>
+                    <td>Lists, tables</td>
+                    <td>Recommendations, searches</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="example">
+            <h3>Simple Comparison Example</h3>
+            <p>Traditional: Search for exact product ID 123.</p>
+            <p>Vector: Search for products similar to "red shirt" vector, finds "crimson top" too.</p>
+        </div>
+
+        <h2>Vector Database Use Cases</h2>
+        <p>Vector DBs shine in apps where "similarity" matters more than exact matches.</p>
+
+        <ul>
+            <li><strong>Search Engines:</strong> Find similar articles to "machine learning basics".</li>
+            <li><strong>Recommendations:</strong> Suggest movies like the one you watched (based on vector similarity).</li>
+            <li><strong>Image Matching:</strong> Upload a photo and find look-alikes in a catalog.</li>
+            <li><strong>Chatbots:</strong> Pull relevant info from docs to answer questions accurately.</li>
+        </ul>
+
+        <div class="example">
+            <h3>Simple Use Case: Movie Recommendations</h3>
+            <p>Store movie vectors based on genre (action=1, comedy=0). Query "action" vector finds action movies.</p>
+        </div>
+
+        <h3>Python Code: Simple Recommendation System</h3>
+        <pre><code>import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Movie vectors: [action, comedy, drama]
+movies = {
+    'Avengers': np.array([1, 0, 0]),
+    'Friends': np.array([0, 1, 0]),
+    'Inception': np.array([1, 0, 1])
+}
+
+# User likes action-drama
+user_like = np.array([1, 0, 1])
+
+# Compute similarities
+similarities = {movie: cosine_similarity([user_like], [vec])[0][0] for movie, vec in movies.items()}
+
+# Top recommendation
+top_movie = max(similarities, key=similarities.get)
+print("Recommended:", top_movie, "Similarity:", similarities[top_movie])  # Output: Inception 1.0</code></pre>
+        <p>Build on this to add more movies or real embeddings.</p>
+
+        <h2>Next Steps</h2>
+        <p>Try the code snippets. For real apps, explore libraries like Chroma or Pinecone.</p>
+        <p><em>Resources: NumPy docs, scikit-learn tutorials.</em></p>
+    </div>
+</body>
+</html>
