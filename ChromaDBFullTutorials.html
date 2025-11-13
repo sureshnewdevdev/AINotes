@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ItTechGenie | Complete ChromaDB Tutorial (2025 Edition)</title>
+
+<style>
+    /* Global */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f4f6f9;
+        line-height: 1.7;
+        transition: 0.3s ease;
+    }
+
+    header {
+        background: #0d47a1;
+        color: white;
+        padding: 18px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    footer {
+        background: #0d47a1;
+        color: white;
+        padding: 12px;
+        text-align: center;
+        margin-top: 40px;
+        font-size: 14px;
+    }
+
+    .container {
+        padding: 25px;
+        max-width: 950px;
+        margin: auto;
+    }
+
+    /* Dark Mode */
+    body.dark {
+        background: #121212;
+        color: #e0e0e0;
+    }
+    body.dark pre {
+        background: #1e1e1e;
+        color: #e0e0e0;
+        border-left: 5px solid #00e676;
+    }
+    body.dark .box {
+        background: #1c1c1c;
+        color: #eee;
+        box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+    }
+
+    /* Toggle Button */
+    #toggleMode {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 14px;
+        background: #0d47a1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    #toggleMode:hover {
+        background: #1565c0;
+    }
+
+    /* Code Block */
+    pre {
+        background: #f4f4f4;
+        color: #111 !important;
+        padding: 14px;
+        border-left: 5px solid #4CAF50;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 15px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    code {
+        background: #eaeaea;
+        color: #111;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .box {
+        background: white;
+        padding: 18px;
+        border-radius: 10px;
+        margin-bottom: 28px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    h1, h2, h3 { color: #0d47a1; }
+    body.dark h1, body.dark h2, body.dark h3 { color: #90caf9; }
+
+</style>
+</head>
+
+<body>
+
+<header>
+    ItTechGenie – Complete ChromaDB Vector Database Tutorial
+</header>
+
+<button id="toggleMode">🌙 Dark Mode</button>
+
+<div class="container">
+
+<h1>🔷 ChromaDB Tutorial (2025 Edition)</h1>
+
+<div class="box">
+<p>
+ChromaDB is a fast, modern, open-source vector database used for:
+</p>
+<ul>
+<li>Semantic search</li>
+<li>Chatbots & RAG systems</li>
+<li>Embedding storage</li>
+<li>AI knowledge bases</li>
+<li>Document intelligence</li>
+</ul>
+<p>This guide teaches everything you need to use ChromaDB professionally.</p>
+</div>
+
+<h2>📌 Table of Contents</h2>
+<div class="box">
+<ol>
+    <li>What is a Vector Database?</li>
+    <li>Why ChromaDB?</li>
+    <li>Installation</li>
+    <li>Virtual Environment Setup</li>
+    <li>Basic ChromaDB Usage</li>
+    <li>Semantic Search</li>
+    <li>Embedding Functions</li>
+    <li>Persistent ChromaDB</li>
+    <li>Updating & Deleting</li>
+    <li>Architecture Diagram</li>
+    <li>RAG Flow</li>
+    <li>Complete Example</li>
+</ol>
+</div>
+
+<!-- SECTION -->
+<h2>1️⃣ What is a Vector Database?</h2>
+<div class="box">
+<p>A vector DB stores numerical embeddings that represent meaning.</p>
+
+<pre>
+"Shiva is Dakshinamurthy."
+↓ becomes →
+[0.11, -0.23, 0.89, ...]
+</pre>
+
+<p>Similar sentences produce similar vectors → enabling semantic search.</p>
+</div>
+
+<!-- SECTION -->
+<h2>2️⃣ Why ChromaDB?</h2>
+<div class="box">
+<ul>
+<li>Local storage (no server needed)</li>
+<li>Fast, modern architecture</li>
+<li>Best for RAG systems</li>
+<li>Easy to integrate with Transformers</li>
+<li>Lightweight + scalable</li>
+</ul>
+</div>
+
+<!-- SECTION -->
+<h2>3️⃣ Installation</h2>
+<div class="box">
+<pre><code>pip install chromadb
+pip install sentence-transformers</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>4️⃣ Create Virtual Environment</h2>
+<div class="box">
+<pre><code>python -m venv .venv
+.\.venv\Scripts\activate</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>5️⃣ Basic ChromaDB Setup</h2>
+<div class="box">
+<pre><code>import chromadb
+
+client = chromadb.Client()
+
+collection = client.create_collection(name="my_collection")
+
+collection.add(
+    ids=["1", "2"],
+    documents=[
+        "Shiva is the cosmic Guru Dakshinamurthy.",
+        "Murugan is the warrior son of Shiva."
+    ]
+)
+
+print("Added!")</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>6️⃣ Semantic Search</h2>
+<div class="box">
+<pre><code>result = collection.query(
+    query_texts=["Who is the cosmic teacher?"],
+    n_results=2
+)
+
+print(result)</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>7️⃣ Embedding Functions</h2>
+<div class="box">
+<pre><code>from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+import chromadb
+
+client = chromadb.Client()
+
+embedding_func = SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"
+)
+
+collection = client.create_collection(
+    name="shiva_collection",
+    embedding_function=embedding_func
+)
+
+collection.add(
+    documents=[
+        "Shiva teaches yoga, music, and wisdom.",
+        "Parvati is the mother goddess."
+    ],
+    ids=["p1", "p2"]
+)
+
+result = collection.query(
+    query_texts=["Who teaches wisdom?"],
+    n_results=2
+)
+
+print(result)</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>8️⃣ Persistent ChromaDB Database</h2>
+<div class="box">
+<pre><code>client = chromadb.PersistentClient(path="./chroma_storage")</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>9️⃣ Update & Delete</h2>
+<div class="box">
+<h3>Update:</h3>
+<pre><code>collection.update(
+    ids=["1"],
+    documents=["Updated info about Dakshinamurthy."]
+)</code></pre>
+
+<h3>Delete:</h3>
+<pre><code>collection.delete(ids=["1"])</code></pre>
+</div>
+
+<!-- SECTION -->
+<h2>🔟 Architecture Diagram</h2>
+<div class="box">
+<pre>
+User Text
+   ↓
+Embedding Model (Sentence Transformers)
+   ↓
+ChromaDB Vector Store
+   ↓
+Semantic Search / RAG
+</pre>
+</div>
+
+<!-- SECTION -->
+<h2>1️⃣1️⃣ RAG Flow</h2>
+<div class="box">
+<pre>
+Question → Embedding → Chroma Search → Retrieved Text → LLM → Answer
+</pre>
+</div>
+
+<!-- SECTION -->
+<h2>1️⃣2️⃣ Complete Working Project</h2>
+<div class="box">
+<pre><code>import chromadb
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+
+client = chromadb.PersistentClient(path="./rag_db")
+
+embedding_func = SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"
+)
+
+collection = client.get_or_create_collection(
+    name="kb",
+    embedding_function=embedding_func
+)
+
+documents = [
+    "Dakshinamurthy is the universal teacher.",
+    "Shiva faces south in this divine form.",
+    "Ganesha removes obstacles.",
+    "Murugan leads the celestial army."
+]
+
+ids = ["1","2","3","4"]
+
+collection.add(documents=documents, ids=ids)
+
+query = "Who is the ultimate teacher?"
+result = collection.query(query_texts=[query], n_results=2)
+
+print(result)</code></pre>
+</div>
+
+</div>
+
+<footer>
+    © 2025 ItTechGenie Learning Platform | All Rights Reserved
+</footer>
+
+<script>
+document.getElementById("toggleMode").onclick = function() {
+    document.body.classList.toggle("dark");
+    this.innerHTML = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+};
+</script>
+
+</body>
+</html>
