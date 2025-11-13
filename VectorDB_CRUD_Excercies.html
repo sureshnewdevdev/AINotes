@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Operations with ChromaDB Using Python</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .code-section {
+            margin: 20px 0;
+        }
+        .explanation {
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-left: 4px solid #17a2b8;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .exercise {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CRUD Operations with ChromaDB Using Python</h1>
+        <p><em>A practical guide to performing Create, Read, Update, and Delete operations in ChromaDB, a simple vector database. Examples use text data with automatic embeddings. Last updated: November 13, 2025.</em></p>
+
+        <h2>1. Prerequisites</h2>
+        <p>Before starting, install the required packages:</p>
+        <pre><code>pip install chromadb sentence-transformers</code></pre>
+        <p><code>chromadb</code> is the vector DB library. <code>sentence-transformers</code> provides a free embedding model to convert text to vectors.</p>
+
+        <h2>2. Connecting to ChromaDB</h2>
+        <p>ChromaDB runs locally by default. Start by creating a client and a collection (like a table).</p>
+        
+        <div class="code-section">
+            <h3>Connection Script</h3>
+            <pre><code>import chromadb
+from chromadb.utils import embedding_functions
+
+# Create a client (local persistence)
+client = chromadb.Client()
+
+# Embedding function for text-to-vector conversion
+embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"  # Lightweight model
+)
+
+# Create or get a collection
+collection = client.get_or_create_collection(
+    name="crud_example",
+    embedding_function=embedding_function
+)
+
+print("Connected to ChromaDB!")</code></pre>
+            <p>Run this as <code>connect.py</code>. It sets up everything for CRUD operations.</p>
+        </div>
+
+        <div class="explanation">
+            <h3>Explanation</h3>
+            <p>The <code>Client()</code> handles storage. Collections store vectors with metadata. Embeddings turn your data (e.g., text) into searchable vectors automatically.</p>
+        </div>
+
+        <h2>3. CRUD Operations Overview</h2>
+        <p>ChromaDB's CRUD maps to vector data management:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>ChromaDB Method</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Create</td>
+                    <td><code>collection.add()</code></td>
+                    <td>Insert new documents (text) with IDs; generates vectors.</td>
+                </tr>
+                <tr>
+                    <td>Read</td>
+                    <td><code>collection.get()</code> or <code>collection.query()</code></td>
+                    <td>Get by ID or search similar via vectors.</td>
+                </tr>
+                <tr>
+                    <td>Update</td>
+                    <td><code>collection.update()</code></td>
+                    <td>Modify documents/metadata by ID; re-embeds.</td>
+                </tr>
+                <tr>
+                    <td>Delete</td>
+                    <td><code>collection.delete()</code></td>
+                    <td>Remove by ID.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>4. Create Operation (Add Data)</h2>
+        <p>Add documents to the collection. Each gets a unique ID and an auto-generated vector.</p>
+        
+        <div class="code-section">
+            <h3>Create Example</h3>
+            <pre><code># Assuming connection from Section 2
+
+# Add documents
+collection.add(
+    documents=[
+        "Python is a versatile programming language.",
+        "ChromaDB simplifies vector storage.",
+        "Machine learning powers embeddings."
+    ],
+    ids=["doc1", "doc2", "doc3"],
+    metadatas=[  # Optional: Extra info
+        {"topic": "programming"},
+        {"topic": "database"},
+        {"topic": "AI"}
+    ]
+)
+
+print(f"Added {collection.count()} documents.")</code></pre>
+            <p><strong>Output:</strong> "Added 3 documents."</p>
+        </div>
+
+        <div class="explanation">
+            <h3>Explanation</h3>
+            <p><code>documents</code> is the text data. <code>ids</code> are unique keys. <code>metadatas</code> stores JSON-like info for filtering. Vectors are created via the embedding function.</p>
+        </div>
+
+        <h2>5. Read Operations (Get and Query)</h2>
+        <p><strong>Get:</strong> Retrieve exact items by ID.<br>
+        <strong>Query:</strong> Find similar items using vector similarity (e.g., cosine distance).</p>
+
+        <div class="code-section">
+            <h3>Read Examples</h3>
+            <pre><code># Get by ID
+get_result = collection.get(ids=["doc1"])
+print("Get Result:", get_result['documents'][0])  # "Python is a versatile..."
+
+# Query for similar
+query_result = collection.query(
+    query_texts=["What about vector databases?"],
+    n_results=2  # Top 2 matches
+)
+print("Query IDs:", query_result['ids'])
+print("Query Documents:", query_result['documents'][0])
+print("Distances:", query_result['distances'][0])  # Lower = more similar</code></pre>
+            <p><strong>Expected Output:</strong> Query might return ["doc2", "doc1"] with distances like [0.25, 0.45].</p>
+        </div>
+
+        <div class="explanation">
+            <h3>Explanation</h3>
+            <p><code>get()</code> returns all data for IDs. <code>query()</code> embeds the query text and finds nearest vectors. Use <code>include=["metadatas"]</code> to fetch extras.</p>
+        </div>
+
+        <h2>6. Update Operation</h2>
+        <p>Update existing documents or metadata by ID. This re-generates the vector.</p>
+
+        <div class="code-section">
+            <h3>Update Example</h3>
+            <pre><code># Update document and metadata
+collection.update(
+    ids=["doc2"],
+    documents=["ChromaDB is an open-source vector database for AI apps."],
+    metadatas=[{"topic": "vector_db", "version": "updated"}]
+)
+
+# Verify
+updated = collection.get(ids=["doc2"])
+print("Updated:", updated['documents'][0])</code></pre>
+            <p><strong>Output:</strong> "ChromaDB is an open-source vector database for AI apps."</p>
+        </div>
+
+        <div class="explanation">
+            <h3>Explanation</h3>
+            <p>Only specified fields update. If you omit <code>documents</code>, just metadata changes.</p>
+        </div>
+
+        <h2>7. Delete Operation</h2>
+        <p>Remove items by ID.</p>
+
+        <div class="code-section">
+            <h3>Delete Example</h3>
+            <pre><code># Delete by ID
+collection.delete(ids=["doc3"])
+
+print(f"Remaining: {collection.count()} documents.")</code></pre>
+            <p><strong>Output:</strong> "Remaining: 2 documents."</p>
+        </div>
+
+        <div class="explanation">
+            <h3>Explanation</h3>
+            <p>Deletes vectors, documents, and metadata. Use <code>where={"topic": "programming"}</code> for batch deletes via metadata filters.</p>
+        </div>
+
+        <h2>8. Full CRUD Script</h2>
+        <p>Combine everything into one runnable script.</p>
+        
+        <div class="code-section">
+            <h3>Complete CRUD Script</h3>
+            <pre><code>import chromadb
+from chromadb.utils import embedding_functions
+
+# Connection
+client = chromadb.Client()
+embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+collection = client.get_or_create_collection(name="crud_example", embedding_function=embedding_function)
+
+# Create
+collection.add(
+    documents=["Apple is a fruit.", "Banana is yellow.", "Cherry is red."],
+    ids=["item1", "item2", "item3"]
+)
+print(f"Created: {collection.count()} items.")
+
+# Read
+print("\nRead (Get):", collection.get(ids=["item1"])['documents'][0])
+query_res = collection.query(query_texts=["What fruit is red?"], n_results=1)
+print("Read (Query):", query_res['documents'][0][0])
+
+# Update
+collection.update(ids=["item2"], documents=["Banana is a tropical fruit."])
+print("\nUpdated item2:", collection.get(ids=["item2"])['documents'][0])
+
+# Delete
+collection.delete(ids=["item3"])
+print(f"\nDeleted: {collection.count()} items left.")</code></pre>
+            <p>Save as <code>crud_full.py</code> and run <code>python crud_full.py</code>.</p>
+        </div>
+
+        <h2>9. Exercises</h2>
+        
+        <div class="exercise">
+            <h3>Exercise 1: Custom Collection</h3>
+            <p>Create a "movies" collection. Add 3 movie descriptions. Update one, query for "action", delete one. Print results at each step.</p>
+            <pre><code># Hint: Use documents like "Fast-paced car chases in a spy thriller."</code></pre>
+        </div>
+
+        <div class="exercise">
+            <h3>Exercise 2: Metadata Filtering</h3>
+            <p>Add items with <code>metadatas=[{"genre": "action"}, ...]</code>. Query with <code>where={"genre": "action"}</code>.</p>
+        </div>
+
+        <h2>10. Next Steps</h2>
+        <ul>
+            <li>Explore: Batch operations for large data.</li>
+            <li>Advanced: Hybrid queries with SQL-like filters.</li>
+            <li>Resources: <a href="https://docs.trychroma.com/">ChromaDB Docs</a>.</li>
+        </ul>
+    </div>
+</body>
+</html>
