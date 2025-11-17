@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Database Management Tutorial Notes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        ul, ol { margin: 10px 0; padding-left: 20px; }
+        .section { margin-bottom: 30px; }
+        .topic-header { background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+<h1>Vector Database Management Tutorial Notes</h1>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Index Management</h2>
+        <p>Indexes in vector databases enable fast similarity searches by organizing high-dimensional vectors efficiently.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Index Types:</strong> Flat indexes for exact nearest neighbor (brute-force), approximate indexes like HNSW (Hierarchical Navigable Small World) for speed, or IVF (Inverted File) for scalability.</li>
+        <li><strong>Building an Index:</strong> Train on a subset of data, then add remaining vectors. Monitor build time and memory usage.</li>
+        <li><strong>Maintenance:</strong> Rebuild periodically for dynamic data; use incremental updates where supported.</li>
+    </ul>
+    
+    <h3>Practical Steps</h3>
+    <ol>
+        <li>Choose metric (e.g., cosine similarity) and dimensions.</li>
+        <li>Create index: In FAISS, <code>index = faiss.IndexHNSWFlat(d, M=32)</code>.</li>
+        <li>Add vectors: <code>index.add(vectors)</code>.</li>
+        <li>Search: <code>D, I = index.search(query, k=10)</code>.</li>
+    </ol>
+    
+    <h3>Best Practices</h3>
+    <ul>
+        <li>Balance accuracy and speed: Tune parameters like M in HNSW.</li>
+        <li>Monitor recall: Test with ground-truth queries.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Collection</h2>
+        <p>A collection is a logical container for vectors and associated metadata, similar to a table in relational databases.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Schema Definition:</strong> Specify vector dimensions, metadata fields (e.g., strings, integers), and optional indexes on metadata.</li>
+        <li><strong>CRUD Operations:</strong> Create, read (query), update, delete vectors within the collection.</li>
+        <li><strong>Scaling:</strong> Collections can be sharded across nodes for high availability.</li>
+    </ul>
+    
+    <h3>Practical Steps</h3>
+    <ol>
+        <li>In Pinecone: <code>index = pinecone.Index("my-collection")</code>.</li>
+        <li>In Weaviate: Define class in schema with vectorizer config.</li>
+        <li>Query collection: Filter by metadata, e.g., <code>index.query(vector=query_vec, filter={"category": "tech"})</code>.</li>
+    </ol>
+    
+    <h3>Best Practices</h3>
+    <ul>
+        <li>Use descriptive names and version collections for A/B testing.</li>
+        <li>Enforce data validation on insert to maintain quality.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Partitioning Vectors</h2>
+        <p>Partitioning divides the vector space into subspaces to improve query performance and manage large datasets.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Techniques:</strong> Quantization (reduce precision), clustering (e.g., k-means for IVF), or graph-based (HNSW layers).</li>
+        <li><strong>Benefits:</strong> Reduces search space, lowers memory footprint, speeds up ANN searches.</li>
+        <li><strong>Trade-offs:</strong> Approximate methods may lose some accuracy.</li>
+    </ul>
+    
+    <h3>Practical Steps</h3>
+    <ol>
+        <li>Select partition count: Based on dataset size, e.g., sqrt(N) clusters.</li>
+        <li>Implement: In FAISS IVF, <code>index = faiss.IndexIVFFlat(quantizer, d, nlist=100)</code>.</li>
+        <li>Tune: Adjust nprobe (number of clusters probed) for speed vs. accuracy.</li>
+    </ol>
+    
+    <h3>Best Practices</h3>
+    <ul>
+        <li>Pre-partition during ingestion for static data.</li>
+        <li>Evaluate with metrics like QPS (queries per second) and recall@K.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Upsert</h2>
+        <p>Upsert (update or insert) operations allow seamless addition or modification of vectors with idempotency.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Idempotency:</strong> Uses unique IDs to avoid duplicates; updates if ID exists, inserts otherwise.</li>
+        <li><strong>Batching:</strong> Group operations for efficiency, especially in distributed systems.</li>
+        <li><strong>Atomicity:</strong> Ensures consistency, though not always guaranteed across shards.</li>
+    </ul>
+    
+    <h3>Practical Steps</h3>
+    <ol>
+        <li>Prepare data: Vectors with IDs and metadata.</li>
+        <li>Execute: In Pinecone, <code>index.upsert(vectors=[{"id": "1", "values": vec, "metadata": {}}])</code>.</li>
+        <li>Batch: <code>index.upsert(vectors=batch_list)</code> for multiple items.</li>
+    </ol>
+    
+    <pre><code># Example batch upsert
+batch = [
+    {"id": "doc1", "values": [0.1, 0.2, ...], "metadata": {"title": "Doc One"}},
+    {"id": "doc2", "values": [0.3, 0.4, ...], "metadata": {"title": "Doc Two"}}
+]
+index.upsert(vectors=batch)</code></pre>
+    
+    <h3>Best Practices</h3>
+    <ul>
+        <li>Handle errors with retries and exponential backoff.</li>
+        <li>Monitor throughput and latency for large batches.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Vector Partitioning Using Metadata</h2>
+        <p>Leverage metadata to logically partition vectors, enabling filtered queries without full scans.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Namespaces/Pods:</strong> In Pinecone, namespaces act as sub-collections keyed by metadata values.</li>
+        <li><strong>Filters:</strong> Query-time filtering on metadata (e.g., date ranges, categories) intersects with vector search.</li>
+        <li><strong>Indexing:</strong> Secondary indexes on metadata fields for faster filtering.</li>
+    </ul>
+    
+    <h3>Practical Steps</h3>
+    <ol>
+        <li>Attach metadata on upsert: <code>{"metadata": {"user_id": 123, "timestamp": "2023-01-01"}}</code>.</li>
+        <li>Partition: Use namespaces, e.g., <code>index.upsert(vectors=..., namespace="user_123")</code>.</li>
+        <li>Query with filter: <code>index.query(vector=query, filter={"timestamp": {"$gt": "2023-01-01"}}, namespace="user_123")</code>.</li>
+    </ol>
+    
+    <h3>Best Practices</h3>
+    <ul>
+        <li>Keep metadata lightweight; avoid high-cardinality fields for partitioning.</li>
+        <li>Combine with vector partitioning for hybrid efficiency.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Distance Metrics</h2>
+        <p>Distance metrics quantify similarity between vectors, guiding the choice of index and search algorithm.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Cosine Similarity:</strong> Angle-based, ignores magnitude; ideal for text embeddings.</li>
+        <li><strong>Euclidean (L2):</strong> Straight-line distance; sensitive to scale.</li>
+        <li><strong>Dot Product (Inner Product):</strong> For normalized vectors, approximates cosine; fast for sparse data.</li>
+    </ul>
+    
+    <h3>Comparison Table</h3>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Formula</th>
+            <th>Use Case</th>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+        <tr>
+            <td>Cosine</td>
+            <td>1 - (A·B) / (|A||B|)</td>
+            <td>Semantic search</td>
+            <td>Scale-invariant</td>
+            <td>Computationally heavier</td>
+        </tr>
+        <tr>
+            <td>Euclidean</td>
+            <td>√(Σ(Ai - Bi)²)</td>
+            <td>Image features</td>
+            <td>Intuitive</td>
+            <td>Magnitude-sensitive</td>
+        </tr>
+        <tr>
+            <td>Dot Product</td>
+            <td>A·B</td>
+            <td>Recommendation systems</td>
+            <td>Fast</td>
+            <td>Requires normalization</td>
+        </tr>
+    </table>
+    
+    <h3>Practical Steps</h3>
+    <ol>
+        <li>Select based on embedding: Cosine for OpenAI models.</li>
+        <li>Configure: In Pinecone, <code>index.create_metric("cosine")</code>.</li>
+        <li>Normalize if needed: <code>vec = vec / np.linalg.norm(vec)</code>.</li>
+    </ol>
+    
+    <h3>Best Practices</h3>
+    <ul>
+        <li>Test multiple metrics on sample queries for best recall.</li>
+        <li>Use inner product with L2 normalization for cosine equivalence.</li>
+    </ul>
+</div>
+
+</body>
+</html>

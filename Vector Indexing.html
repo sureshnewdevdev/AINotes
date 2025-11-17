@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Databases Tutorial Notes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        ul { margin: 10px 0; padding-left: 20px; }
+        .section { margin-bottom: 30px; }
+        .db-header { background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<h1>Vector Databases Tutorial Notes</h1>
+
+<div class="section">
+    <div class="db-header">
+        <h2>FAISS</h2>
+        <p>Facebook AI Similarity Search (FAISS) is a library for efficient similarity search and clustering of dense vectors.</p>
+    </div>
+    
+    <h3>Core Concepts</h3>
+    <ul>
+        <li><strong>Vector Indexing:</strong> FAISS supports various index types like Flat (exact search), IVF (inverted file), and PQ (product quantization) for approximate nearest neighbors (ANN).</li>
+        <li><strong>Similarity Metrics:</strong> Primarily uses inner product, L2 distance, or cosine similarity to find closest vectors.</li>
+        <li><strong>Training and Building:</strong> Some indexes require training on a subset of data before adding all vectors.</li>
+    </ul>
+    
+    <h3>Getting Started</h3>
+    <ol>
+        <li>Install via pip: <code>pip install faiss-cpu</code> (or <code>faiss-gpu</code> for GPU support).</li>
+        <li>Basic example for exact search:
+            <pre><code>import faiss
+import numpy as np
+
+d = 64  # dimension
+nb = 10000  # database size
+np.random.seed(1234)
+xb = np.random.random((nb, d)).astype('float32')
+index = faiss.IndexFlatL2(d)  # L2 distance
+index.add(xb)  # add vectors to index
+D, I = index.search(xb[:5], k=4)  # search 5 vectors, return 4 nearest</code></pre>
+        </li>
+        <li>For large-scale search, use IVF index:
+            <pre><code>nlist = 100
+quantizer = faiss.IndexFlatL2(d)
+index = faiss.IndexIVFFlat(quantizer, d, nlist)
+index.train(xb)
+index.add(xb)</code></pre>
+        </li>
+    </ol>
+    
+    <h3>Pros and Cons</h3>
+    <table>
+        <tr>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+        <tr>
+            <td>High performance on CPU/GPU</td>
+            <td>No built-in persistence</td>
+        </tr>
+        <tr>
+            <td>Flexible indexing options</td>
+            <td>Requires manual handling of metadata</td>
+        </tr>
+        <tr>
+            <td>Open-source and lightweight</td>
+            <td>Limited to vector-only storage</td>
+        </tr>
+    </table>
+    
+    <h3>Integration Tips</h3>
+    <ul>
+        <li>Combine with LangChain: Use <code>FAISS</code> vector store for RAG applications.</li>
+        <li>Optimization: Tune nprobe for IVF to balance speed and accuracy.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="db-header">
+        <h2>Pinecone</h2>
+        <p>Pinecone is a managed vector database service designed for scalable similarity search in machine learning applications.</p>
+    </div>
+    
+    <h3>Core Concepts</h3>
+    <ul>
+        <li><strong>Indexes and Pods:</strong> Create serverless or pod-based indexes with configurable dimensions and metrics (cosine, euclidean, dotproduct).</li>
+        <li><strong>Upserts and Queries:</strong> Insert vectors with metadata and IDs; query returns matches with scores.</li>
+        <li><serverless>Scalability:</strong> Automatically scales without managing infrastructure.</li>
+    </ul>
+    
+    <h3>Getting Started</h3>
+    <ol>
+        <li>Sign up at pinecone.io and get an API key.</li>
+        <li>Install client: <code>pip install pinecone-client</code>.</li>
+        <li>Create index and upsert:
+            <pre><code>import pinecone
+
+pinecone.init(api_key="your-api-key", environment="us-west1-gcp")
+index = pinecone.Index("example-index")
+
+# Upsert vectors
+index.upsert(vectors=[{"id": "vec1", "values": [0.1, 0.2, ...], "metadata": {"category": "A"}}])</code></pre>
+        </li>
+        <li>Query example:
+            <pre><code>results = index.query(vector=[0.1, 0.2, ...], top_k=5, include_metadata=True)
+print(results)</code></pre>
+        </li>
+    </ol>
+    
+    <h3>Pros and Cons</h3>
+    <table>
+        <tr>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+        <tr>
+            <td>Fully managed and scalable</td>
+            <td>Costs based on usage</td>
+        </tr>
+        <tr>
+            <td>Built-in metadata filtering</td>
+            <td>Less control over underlying hardware</td>
+        </tr>
+        <tr>
+            <td>Easy integration with ML workflows</td>
+            <td>Dependency on cloud service</td>
+        </tr>
+    </table>
+    
+    <h3>Integration Tips</h3>
+    <ul>
+        <li>Use with OpenAI embeddings for semantic search in chatbots.</li>
+        <li>Namespaces: Partition data logically within the same index for multi-tenancy.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="db-header">
+        <h2>Weaviate</h2>
+        <p>Weaviate is an open-source vector database that stores and searches objects with vector embeddings, supporting hybrid search.</p>
+    </div>
+    
+    <h3>Core Concepts</h3>
+    <ul>
+        <li><strong>Schema and Classes:</strong> Define data classes with properties and vectorizers (e.g., text2vec-openai).</li>
+        <li><strong>Hybrid Search:</strong> Combines vector similarity with keyword search (BM25).</li>
+        <li><strong>Modules:</strong> Extend with modules for generative search, Q&A, and more.</li>
+    </ul>
+    
+    <h3>Getting Started</h3>
+    <ol>
+        <li>Run locally with Docker: <code>docker run -p 8080:8080 semitechnologies/weaviate:latest</code>.</li>
+        <li>Install client: <code>pip install weaviate-client</code>.</li>
+        <li>Create schema and add data:
+            <pre><code>import weaviate
+
+client = weaviate.Client("http://localhost:8080")
+
+# Define schema
+schema = {
+    "classes": [{
+        "class": "Article",
+        "properties": [{"name": "title", "dataType": ["text"]}],
+        "vectorizer": "text2vec-contextionary"
+    }]
+}
+client.schema.create(schema)
+
+# Add object
+client.data_object.create({
+    "title": "Example Article"
+}, "Article")</code></pre>
+        </li>
+        <li>Query vectors:
+            <pre><code>result = client.query.get("Article", ["title"]).with_near_text({"concepts": ["machine learning"]}).do()
+print(result)</code></pre>
+        </li>
+    </ol>
+    
+    <h3>Pros and Cons</h3>
+    <table>
+        <tr>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+        <tr>
+            <td>GraphQL API and hybrid search</td>
+            <td>Steeper learning curve for schema</td>
+        </tr>
+        <tr>
+            <td>Open-source with cloud option</td>
+            <td>Resource-intensive for large deployments</td>
+        </tr>
+        <tr>
+            <td>Rich ecosystem of modules</td>
+            <td>Younger project, fewer integrations</td>
+        </tr>
+    </table>
+    
+    <h3>Integration Tips</h3>
+    <ul>
+        <li>Enable generative module for LLM-augmented queries.</li>
+        <li>Use cross-references for graph-like relationships between objects.</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>Comparison Overview</h3>
+    <table>
+        <tr>
+            <th>Feature</th>
+            <th>FAISS</th>
+            <th>Pinecone</th>
+            <th>Weaviate</th>
+        </tr>
+        <tr>
+            <td>Deployment</td>
+            <td>Local library</td>
+            <td>Managed cloud</td>
+            <td>Self-hosted or cloud</td>
+        </tr>
+        <tr>
+            <td>Search Type</td>
+            <td>Vector only</td>
+            <td>Vector + metadata</td>
+            <td>Hybrid (vector + keyword)</td>
+        </tr>
+        <tr>
+            <td>Scalability</td>
+            <td>Manual</td>
+            <td>Automatic</td>
+            <td>Configurable</td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

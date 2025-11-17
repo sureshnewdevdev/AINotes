@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>How "Apple" Is Encoded by a Tokenizer</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #faf7ff;
+      color: #222;
+      line-height: 1.7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #4b2ba8;
+      color: #fff;
+      padding: 20px 30px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h2 {
+      margin-top: 32px;
+      color: #3a2370;
+    }
+    h3 {
+      margin-top: 24px;
+      color: #4b2ba8;
+    }
+    p {
+      margin: 8px 0;
+    }
+    ul {
+      margin: 8px 0 8px 22px;
+    }
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    pre {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 12px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th {
+      background: #ede9fe;
+    }
+    .note {
+      border-left: 4px solid #4b2ba8;
+      background: #ede9fe;
+      padding: 10px 12px;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+    .pill {
+      display: inline-block;
+      background: #e5e7eb;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.85rem;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Encoding the Word <code>"Apple"</code> in a Tokenizer</h1>
+  </header>
+
+  <main>
+    <section id="overview">
+      <h2>1. High-Level Idea</h2>
+      <p>
+        Modern Large Language Models (LLMs) do not work directly with raw words. Instead, they convert text into
+        <strong>tokens</strong>, and then each token is mapped to a <strong>number (token ID)</strong>.
+      </p>
+      <p>Conceptually, the pipeline looks like this:</p>
+      <p>
+        <span class="pill">Text</span>
+        <span class="pill">Characters / Bytes</span>
+        <span class="pill">Subword Tokens</span>
+        <span class="pill">Token IDs</span>
+      </p>
+      <p>
+        For a word like <code>"Apple"</code>, a tokenizer might treat it as a single token:
+      </p>
+      <pre><code>"Apple" → ["Apple"] → [23495]</code></pre>
+      <p>
+        In this explanation we will use the example ID <code>23495</code> just to illustrate the process.  
+        (Real models will have their own specific IDs.)
+      </p>
+    </section>
+
+    <section id="bytes-bpe">
+      <h2>2. Step-by-Step Encoding of <code>"Apple"</code></h2>
+
+      <h3>2.1 Character &amp; Byte Representation</h3>
+      <p>Internally, text is represented as bytes. For ASCII characters in UTF-8, each character maps to one byte:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Character</th>
+            <th>ASCII Code</th>
+            <th>Binary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A</td>
+            <td>65</td>
+            <td>01000001</td>
+          </tr>
+          <tr>
+            <td>p</td>
+            <td>112</td>
+            <td>01110000</td>
+          </tr>
+          <tr>
+            <td>p</td>
+            <td>112</td>
+            <td>01110000</td>
+          </tr>
+          <tr>
+            <td>l</td>
+            <td>108</td>
+            <td>01101100</td>
+          </tr>
+          <tr>
+            <td>e</td>
+            <td>101</td>
+            <td>01100101</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        So the raw byte sequence for <code>"Apple"</code> is:
+      </p>
+      <pre><code>[65, 112, 112, 108, 101]</code></pre>
+
+      <h3>2.2 Byte-Pair Encoding (BPE) / Subword Merges</h3>
+      <p>
+        Tokenizers like GPT’s use <strong>Byte-Pair Encoding (BPE)</strong> or similar subword methods.
+        The idea is:
+      </p>
+      <ul>
+        <li>Start with characters or bytes as initial tokens.</li>
+        <li>Look at a huge text corpus.</li>
+        <li>Repeatedly merge the most frequent adjacent pairs into new tokens.</li>
+      </ul>
+
+      <p>An example (simplified) merge sequence could be:</p>
+      <pre><code>
+A + p   → "Ap"
+p + p   → "pp"
+"pp" + l  → "ppl"
+"ppl" + e → "pple"
+"Ap" + "pple" → "Apple"
+      </code></pre>
+
+      <p>
+        After all learned merges are applied, the tokenizer might treat <code>"Apple"</code> as a single token:
+      </p>
+      <pre><code>"Apple" → ["Apple"]</code></pre>
+      <p>In some tokenizers it could also be split like <code>["App", "le"]</code> or <code>["▁Apple"]</code>.</p>
+
+      <h3>2.3 Token → Token ID</h3>
+      <p>
+        Each token string has a corresponding numeric ID in the tokenizer’s vocabulary. For illustration:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Token ID (example)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"A"</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>"App"</td>
+            <td>23494</td>
+          </tr>
+          <tr>
+            <td>"Apple"</td>
+            <td><strong>23495</strong></td>
+          </tr>
+          <tr>
+            <td>"ple"</td>
+            <td>23496</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>So the final numerical encoding becomes:</p>
+      <pre><code>"Apple" → ["Apple"] → [23495]</code></pre>
+    </section>
+
+    <section id="diagram">
+      <h2>3. Diagram: Encoding Flow of <code>"Apple"</code></h2>
+
+      <pre><code>
+┌────────────────────┐
+│        TEXT        │
+│      "Apple"       │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│  CHARACTER LEVEL   │
+│   A   p   p   l   e│
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│      BYTES         │
+│ 65 112 112 108 101│
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│    BPE MERGING     │
+│ A+p → "Ap"         │
+│ p+p → "pp"         │
+│ pp+l→ "ppl"        │
+│ ppl+e→ "pple"      │
+│ Ap+pple→ "Apple"   │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│   TOKENIZATION     │
+│    ["Apple"]       │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│   VOCAB LOOKUP     │
+│ "Apple" → 23495    │
+└────────────────────┘
+      </code></pre>
+    </section>
+
+    <section id="extra-explanation">
+      <h2>4. Extra Details About the Token ID <code>23495</code></h2>
+
+      <h3>4.1 1️⃣ What does <code>23495</code> actually mean?</h3>
+      <p>
+        Think of a tokenizer vocabulary as a big table that maps token texts to IDs:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Token text</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td>
+            <td>&lt;pad&gt;</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>&lt;bos&gt;</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>"A"</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>"B"</td>
+          </tr>
+          <tr>
+            <td>...</td>
+            <td>...</td>
+          </tr>
+          <tr>
+            <td>23494</td>
+            <td>"App"</td>
+          </tr>
+          <tr>
+            <td><strong>23495</strong></td>
+            <td><strong>"Apple"</strong></td>
+          </tr>
+          <tr>
+            <td>23496</td>
+            <td>"ple"</td>
+          </tr>
+          <tr>
+            <td>...</td>
+            <td>...</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        Here, <strong>23495</strong> is just the <em>index</em> in this table.  
+        The number was assigned when the tokenizer was trained.  
+        The digit <code>2</code> at the front has no special meaning – it is simply part of the decimal number <code>23495</code>.
+      </p>
+      <p>So the lookup process is:</p>
+      <pre><code>"Apple" → find the row where token text = "Apple" → read its ID → 23495</code></pre>
+      <p>That’s all. There is no logic like “2 comes from A” or “3 comes from p”.</p>
+
+      <h3>4.2 2️⃣ How are such numbers assigned?</h3>
+      <p>When building a tokenizer, the process is usually:</p>
+      <ol>
+        <li>Start with a base set of tokens (bytes or characters).</li>
+        <li>Analyze a huge text corpus and count which adjacent pairs appear most often.</li>
+        <li>Merge the most frequent pairs into new tokens (<code>Ap</code>, <code>App</code>, <code>Apple</code>, and so on).</li>
+        <li>Each time a new token is created, assign the next unused integer ID.</li>
+      </ol>
+      <p>So IDs progress in a simple sequence:</p>
+      <pre><code>0, 1, 2, 3, 4, 5, ... 23494, 23495, 23496, ...</code></pre>
+      <p>
+        The ID is <strong>not</strong> computed from the letters of <code>"Apple"</code>.  
+        It is just “the 23,495-th token in the vocabulary”.
+      </p>
+
+      <h3>4.3 3️⃣ Visual Diagram of the Lookup Process</h3>
+
+      <pre><code>
+TEXT LAYER
+──────────────
+"Apple"
+
+      │  (tokenizer searches in its vocabulary)
+      ▼
+VOCABULARY TABLE
+─────────────────────────────
+ID       TOKEN
+0        &lt;pad&gt;
+1        &lt;bos&gt;
+...
+23495    "Apple"
+...
+
+      │  (match found)
+      ▼
+ENCODED SEQUENCE
+─────────────────────────────
+[23495]
+      </code></pre>
+
+      <p>
+        The tokenizer matches <code>"Apple"</code> against its vocabulary.  
+        The corresponding ID is <code>23495</code>, so the encoded sequence is simply:
+      </p>
+      <pre><code>[23495]</code></pre>
+      <p>The leading digit <code>2</code> is just part of that integer; it has no independent meaning.</p>
+
+      <h3>4.4 4️⃣ One more important note</h3>
+      <div class="note">
+        In this explanation, <strong>23495</strong> is an example ID, not the true ID from a specific model.
+        <br /><br />
+        Different models (GPT-4, Llama-3, Mistral, etc.) use different vocabularies, so <code>"Apple"</code> may
+        have different IDs in each tokenizer.
+      </div>
+      <p>
+        If you specify a particular model (for example, <code>GPT-4</code> or <code>Llama-3-8B</code>), the exact ID
+        can be obtained using a small Python script with that model’s tokenizer.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

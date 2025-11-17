@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector DB Semantic Search Tutorial Notes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        ul, ol { margin: 10px 0; padding-left: 20px; }
+        .section { margin-bottom: 30px; }
+        .topic-header { background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+<h1>Vector DB Semantic Search Tutorial Notes</h1>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Semantic Search</h2>
+        <p>Semantic search retrieves information based on meaning rather than exact keyword matches, using vector embeddings to capture contextual similarity.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Embeddings:</strong> Convert text to dense vectors representing semantic content.</li>
+        <li><strong>Similarity Computation:</strong> Use cosine similarity or Euclidean distance to rank results.</li>
+        <li><strong>Applications:</strong> Question answering, recommendation systems, and enhanced search engines.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Sample embeddings
+docs = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])  # Document vectors
+query = np.array([[0.2, 0.3]])  # Query vector
+
+# Compute similarities
+similarities = cosine_similarity(query, docs)[0]
+ranked_indices = np.argsort(similarities)[::-1]
+print("Top matches:", ranked_indices)</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Data Preprocessing</h2>
+        <p>Clean and transform raw text data to improve embedding quality and search relevance.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Cleaning:</strong> Remove noise like HTML tags, stopwords, and special characters.</li>
+        <li><strong>Normalization:</strong> Lowercase, lemmatize, or stem tokens.</li>
+        <li><strong>Chunking:</strong> Split long documents into manageable segments.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>import re
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import nltk
+nltk.download('stopwords', quiet=True)
+nltk.download('wordnet', quiet=True)
+
+def preprocess_text(text):
+    lemmatizer = WordNetLemmatizer()
+    stop_words = set(stopwords.words('english'))
+    text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+    tokens = [lemmatizer.lemmatize(token) for token in text.split() if token not in stop_words]
+    return ' '.join(tokens)
+
+raw_text = "Hello World! This is a sample."
+cleaned = preprocess_text(raw_text)
+print("Cleaned:", cleaned)</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Preparing for Upsert</h2>
+        <p>Format processed data into vectors with metadata for efficient insertion into vector databases.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Vector Generation:</strong> Embed text using models like Sentence Transformers.</li>
+        <li><strong>Metadata Attachment:</strong> Include IDs, timestamps, or categories.</li>
+        <li><strong>Batching:</strong> Group data to optimize upsert operations.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>from sentence_transformers import SentenceTransformer
+import pinecone
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+texts = ["Sample document 1", "Sample document 2"]
+embeddings = model.encode(texts)
+
+# Prepare for Pinecone upsert
+vectors = [{"id": f"doc_{i}", "values": emb.tolist(), "metadata": {"text": texts[i]}} for i, emb in enumerate(embeddings)]
+print("Prepared vectors:", vectors[0])</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Vector Query with Semantic Search</h2>
+        <p>Perform queries on vector stores to retrieve semantically similar items.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Query Embedding:</strong> Embed the query text similarly to documents.</li>
+        <li><strong>Top-K Retrieval:</strong> Fetch and rank the most similar vectors.</li>
+        <li><strong>Filtering:</strong> Combine with metadata filters for precision.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>import pinecone
+
+pinecone.init(api_key="your-key", environment="your-env")
+index = pinecone.Index("semantic-index")
+
+query_text = "What is machine learning?"
+query_emb = model.encode([query_text])[0].tolist()
+
+results = index.query(vector=query_emb, top_k=5, include_metadata=True)
+print("Top results:", [match['id'] for match in results['matches']])</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Named Entity Recognition (NER)</h2>
+        <p>Identify and extract entities like persons, organizations, or locations from text to enrich metadata.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Entity Types:</strong> PER (person), ORG (organization), LOC (location), etc.</li>
+        <li><strong>Integration:</strong> Use NER outputs to tag documents for filtered semantic search.</li>
+        <li><strong>Models:</strong> spaCy or Hugging Face transformers for NER.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>import spacy
+
+nlp = spacy.load("en_core_web_sm")
+doc = nlp("Apple Inc. was founded by Steve Jobs in California.")
+
+entities = [(ent.text, ent.label_) for ent in doc.ents]
+print("Entities:", entities)</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Vector Embedding Models</h2>
+        <p>Select and use pre-trained models to generate high-quality vector representations.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>OpenAI Embeddings:</strong> API-based, high performance for general text.</li>
+        <li><strong>Sentence Transformers:</strong> Open-source, efficient for sentence-level embeddings.</li>
+        <li><strong>Dimension Choice:</strong> 384-1536 dims; higher for accuracy, lower for speed.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>from openai import OpenAI
+client = OpenAI(api_key="your-key")
+
+response = client.embeddings.create(input="Embed this text", model="text-embedding-ada-002")
+embedding = response.data[0].embedding
+print("Embedding length:", len(embedding))</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Data Preparation</h2>
+        <p>Organize and structure datasets for embedding and upsert into vector stores.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Splitting:</strong> Divide corpora into chunks of 500-1000 tokens.</li>
+        <li><strong>Metadata Enrichment:</strong> Add source, date, or entity tags.</li>
+        <li><strong>Validation:</strong> Ensure no duplicates or empty chunks.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>def chunk_text(text, chunk_size=500):
+    words = text.split()
+    chunks = [' '.join(words[i:i+chunk_size]) for i in range(0, len(words), chunk_size)]
+    return chunks
+
+long_text = "This is a very long document that needs chunking..."
+chunks = chunk_text(long_text)
+print("Chunks:", len(chunks))</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>NER Helper Function</h2>
+        <p>Create reusable functions to extract and categorize entities efficiently.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Customization:</strong> Filter specific entity types or resolve ambiguities.</li>
+        <li><strong>Batch Processing:</strong> Apply to multiple documents.</li>
+        <li><strong>Output Format:</strong> Dictionary with entity lists per category.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>def extract_entities(text, entity_types=['PERSON', 'ORG']):
+    doc = nlp(text)
+    entities = {et: [ent.text for ent in doc.ents if ent.label_ == et] for et in entity_types}
+    return entities
+
+text = "Elon Musk founded Tesla in 2003."
+ents = extract_entities(text)
+print("Extracted:", ents)</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Vector Embedding in Batches</h2>
+        <p>Generate embeddings for large datasets efficiently using batch processing.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Batch Size:</strong> 32-128 to optimize GPU/CPU usage.</li>
+        <li><strong>Parallelism:</strong> Use multiprocessing for CPU-bound tasks.</li>
+        <li><strong>Memory Management:</strong> Process in streams to avoid OOM errors.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>from sentence_transformers import SentenceTransformer
+import torch
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+texts = ["Text 1", "Text 2", "Text 3"] * 10  # 30 texts
+
+batch_size = 16
+embeddings = []
+for i in range(0, len(texts), batch_size):
+    batch = texts[i:i+batch_size]
+    batch_emb = model.encode(batch, batch_size=batch_size, show_progress_bar=True)
+    embeddings.append(batch_emb)
+
+all_embeddings = np.vstack(embeddings)
+print("Total embeddings shape:", all_embeddings.shape)</code></pre>
+</div>
+
+<div class="section">
+    <div class="topic-header">
+        <h2>Metadata Processing</h2>
+        <p>Extract and standardize metadata to enhance query filtering and result relevance.</p>
+    </div>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>Extraction:</strong> From text via NER or regex patterns.</li>
+        <li><strong>Standardization:</strong> Normalize dates, categories, or enums.</li>
+        <li><strong>Indexing:</strong> Ensure metadata supports fast queries in the vector DB.</li>
+    </ul>
+    
+    <h3>Python Example</h3>
+    <pre><code>import json
+from datetime import datetime
+
+def process_metadata(text, entities):
+    metadata = {
+        "entities": entities,
+        "length": len(text),
+        "timestamp": datetime.now().isoformat()
+    }
+    # Standardize categories
+    if 'ORG' in entities:
+        metadata['category'] = 'business'
+    return metadata
+
+ents = {'ORG': ['Tesla']}
+meta = process_metadata("Sample text", ents)
+print("Processed metadata:", json.dumps(meta, indent=2))</code></pre>
+</div>
+
+</body>
+</html>
