@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Index Management with FAISS – Example & Explanation</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f8fafc;
+      color: #111827;
+      margin: 0;
+      padding: 0;
+      line-height: 1.7;
+    }
+    header {
+      background: #111827;
+      color: #f9fafb;
+      padding: 18px 24px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.7rem;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h2 {
+      margin-top: 28px;
+      color: #1f2933;
+      border-left: 4px solid #2563eb;
+      padding-left: 10px;
+      font-size: 1.3rem;
+    }
+    h3 {
+      margin-top: 22px;
+      color: #111827;
+      font-size: 1.1rem;
+    }
+    p {
+      margin: 6px 0 8px;
+    }
+    ul, ol {
+      margin: 6px 0 10px 22px;
+    }
+    code {
+      background: #e5e7eb;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #020617;
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 6px 10px;
+      text-align: left;
+    }
+    th {
+      background: #e5e7eb;
+      font-weight: 600;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      font-size: 0.8rem;
+      margin-right: 6px;
+    }
+    .note {
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 10px 12px;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+    .section-intro {
+      font-size: 0.95rem;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Index Management with FAISS – Explanation & Example</h1>
+  </header>
+
+  <main>
+    <section id="intro">
+      <p class="section-intro">
+        Index management in vector databases is about how we build, configure, and maintain data structures
+        that allow <strong>fast similarity search</strong> over high-dimensional vectors (embeddings).
+      </p>
+      <p>
+        <strong>FAISS (Facebook AI Similarity Search)</strong> is a popular library for this. It lets you:
+      </p>
+      <ul>
+        <li>Store dense vectors efficiently.</li>
+        <li>Run fast similarity / nearest neighbor searches.</li>
+        <li>Use different index types to balance speed, accuracy, and memory.</li>
+      </ul>
+    </section>
+
+    <section id="what-is-index-management">
+      <h2>1. What Is Index Management? (Intuition)</h2>
+      <p>
+        Suppose you have <strong>100,000+ embeddings</strong> (for example, document vectors in a RAG system).
+        A naive, brute-force search would:
+      </p>
+      <ul>
+        <li>Compare the query vector against <strong>every</strong> stored vector.</li>
+        <li>Be exact, but slow as data grows.</li>
+      </ul>
+      <p>
+        An <strong>index</strong> is a smart data structure that helps you quickly find
+        “the most similar” vectors without scanning everything.
+      </p>
+      <p>
+        <strong>Index management</strong> includes:
+      </p>
+      <ul>
+        <li>Choosing the <strong>index type</strong> (Flat, HNSW, IVF, etc.).</li>
+        <li><strong>Building</strong> the index (possibly training, then adding vectors).</li>
+        <li><strong>Updating &amp; maintaining</strong> it as your data changes.</li>
+      </ul>
+    </section>
+
+    <section id="key-concepts">
+      <h2>2. Key Concepts</h2>
+
+      <h3>2.1 Index Types</h3>
+      <p>Common FAISS index types and when they’re used:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Index Type</th>
+            <th>Example (FAISS)</th>
+            <th>Behavior</th>
+            <th>Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Flat (Exact Search)</td>
+            <td><code>IndexFlatL2</code>, <code>IndexFlatIP</code></td>
+            <td>Compares the query to <em>every</em> vector.</td>
+            <td>Small collections; when you need exact nearest neighbors.</td>
+          </tr>
+          <tr>
+            <td>HNSW (Graph-Based)</td>
+            <td><code>IndexHNSWFlat</code></td>
+            <td>Uses a navigable small-world graph; approximate but fast.</td>
+            <td>Medium to large datasets; very good trade-off of speed &amp; recall.</td>
+          </tr>
+          <tr>
+            <td>IVF (Inverted File)</td>
+            <td><code>IndexIVFFlat</code></td>
+            <td>Clusters vectors into “cells” and only searches a few cells.</td>
+            <td>Very large datasets; scalable but requires training.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 Building an Index (Generic Flow)</h3>
+      <ol>
+        <li><strong>Choose the vector dimension</strong> (e.g., 768 for many transformer embeddings).</li>
+        <li>
+          <strong>Choose the similarity metric</strong>:
+          <ul>
+            <li><code>L2</code> (Euclidean distance)</li>
+            <li><code>Inner product</code> (often for cosine, after normalizing vectors)</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Train the index</strong> (if required):
+          <ul>
+            <li>IVF indexes need <code>index.train(train_vectors)</code>.</li>
+            <li>HNSW / Flat do not require a training step.</li>
+          </ul>
+        </li>
+        <li><strong>Add vectors</strong>: <code>index.add(vectors)</code>.</li>
+        <li>
+          <strong>Search</strong> with:
+          <code>D, I = index.search(query_vectors, k)</code>
+        </li>
+      </ol>
+
+      <h3>2.3 Maintenance</h3>
+      <p>
+        When data is dynamic (new documents often added or old ones deleted), index management also includes:
+      </p>
+      <ul>
+        <li>Adding new embeddings: <code>index.add(new_vectors)</code>.</li>
+        <li>Possibly rebuilding / retraining if distribution changes a lot.</li>
+        <li>Monitoring:
+          <ul>
+            <li><strong>Recall</strong> against ground truth (accuracy).</li>
+            <li><strong>Latency</strong> (speed of queries).</li>
+            <li><strong>Memory usage</strong> (RAM/VRAM).</li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="note">
+        <strong>Best Practices:</strong>
+        <ul>
+          <li>Balance accuracy vs speed by tuning index parameters (e.g., <code>M</code> in HNSW).</li>
+          <li>Monitor recall by comparing with an exact (Flat) search on a subset.</li>
+          <li>Plan periodic rebuilds if your data changes significantly.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="example">
+      <h2>3. Practical Example – HNSW Index in FAISS</h2>
+
+      <p>
+        Let’s use a simple toy scenario. Imagine you have 5 product descriptions and their embeddings (in reality
+        vectors come from an embedding model; here they are just dummy 4D vectors to demonstrate FAISS).
+      </p>
+
+      <h3>3.1 Scenario</h3>
+      <ul>
+        <li><code>"Red apple"</code></li>
+        <li><code>"Green apple"</code></li>
+        <li><code>"Banana fruit"</code></li>
+        <li><code>"Fresh orange"</code></li>
+        <li><code>"Apple juice"</code></li>
+      </ul>
+
+      <p>
+        Goal: given a query like <code>"Apple drink"</code>, find the most similar items
+        using an <strong>HNSW</strong> index.
+      </p>
+
+      <h3>3.2 Python Code Example</h3>
+      <pre><code>import numpy as np
+import faiss
+
+# 1. Suppose these are 5 product embeddings (dimension d = 4)
+# In a real system, you would compute these using an embedding model.
+d = 4  # vector dimension
+vectors = np.array([
+    [0.9,  0.1,  0.0,  0.0],  # "Red apple"
+    [0.85, 0.15, 0.0,  0.0],  # "Green apple"
+    [0.1,  0.9,  0.0,  0.0],  # "Banana fruit"
+    [0.0,  0.1,  0.9,  0.1],  # "Fresh orange"
+    [0.88, 0.12, 0.1,  0.0],  # "Apple juice"
+], dtype='float32')
+
+print("vectors.shape =", vectors.shape)  # (5, 4)
+
+# 2. Create an HNSW index using L2 distance
+M = 32  # HNSW parameter: number of neighbors per node in the graph
+index = faiss.IndexHNSWFlat(d, M)  # index = faiss.IndexHNSWFlat(d, M=32)
+
+# Optional: tune construction and search parameters
+index.hnsw.efConstruction = 40  # trade-off: build time vs quality
+index.hnsw.efSearch = 50        # trade-off: query latency vs recall
+
+# 3. Add vectors to the index
+index.add(vectors)   # Now the index holds 5 vectors
+print("Index total vectors:", index.ntotal)  # should be 5
+
+# 4. Build a query vector for "Apple drink"
+# Again, in practice this is an embedding from your model.
+query = np.array([[0.89, 0.11, 0.05, 0.0]], dtype='float32')  # shape (1, 4)
+
+# 5. Perform a search: find top-3 nearest neighbors
+k = 3
+D, I = index.search(query, k)  # D: distances, I: indices in 'vectors'
+
+print("Nearest distances:
+", D)
+print("Nearest indices:
+", I)</code></pre>
+
+      <h3>3.3 Interpreting the Results</h3>
+      <p>Sample output might look like:</p>
+      <pre><code>Nearest distances:
+ [[0.0008 0.0051 0.30  ]]
+Nearest indices:
+ [[4 0 1]]</code></pre>
+
+      <p>This means:</p>
+      <ul>
+        <li>For our single query, HNSW found three nearest vectors.</li>
+        <li><code>indices = [4, 0, 1]</code>:
+          <ul>
+            <li><strong>4 → "Apple juice"</strong></li>
+            <li><strong>0 → "Red apple"</strong></li>
+            <li><strong>1 → "Green apple"</strong></li>
+          </ul>
+        </li>
+        <li>
+          <code>D[0]</code> holds the distances – smaller distance = more similar (under L2).
+        </li>
+      </ul>
+      <p>
+        This matches our expectation: for query <code>"Apple drink"</code>, the system finds
+        <strong>"Apple juice"</strong> and then other <strong>apple</strong>-related products.
+      </p>
+    </section>
+
+    <section id="mapping-to-concepts">
+      <h2>4. Mapping Back to the Original Points</h2>
+
+      <h3>4.1 Practical Steps</h3>
+      <ul>
+        <li>
+          <strong>Choose metric and dimensions</strong>:
+          we used L2 and <code>d = 4</code> (real world: d = 384/768/1024, etc.).
+        </li>
+        <li>
+          <strong>Create index</strong>:
+          <code>index = faiss.IndexHNSWFlat(d, M=32)</code> (done in the example).
+        </li>
+        <li>
+          <strong>Add vectors</strong>:
+          <code>index.add(vectors)</code> (we added 5 product vectors).
+        </li>
+        <li>
+          <strong>Search</strong>:
+          <code>D, I = index.search(query, k=10)</code> (we used <code>k=3</code>, but same idea).
+        </li>
+      </ul>
+
+      <h3>4.2 Best Practices (Linked to Example)</h3>
+      <ul>
+        <li>
+          <strong>Balance accuracy and speed</strong>:
+          tune <code>M</code>, <code>efConstruction</code>, and <code>efSearch</code>. Higher values typically mean
+          better recall but more memory/CPU.
+        </li>
+        <li>
+          <strong>Monitor recall</strong>:
+          run exact search with <code>IndexFlatL2</code> on a subset and compare results to HNSW.
+        </li>
+        <li>
+          <strong>Monitor memory and latency</strong>:
+          essential when scaling to millions of vectors.
+        </li>
+      </ul>
+    </section>
+
+    <section id="wrap-up">
+      <h2>5. Summary</h2>
+      <p>
+        Index management in vector databases like FAISS is about choosing the right index structure
+        (Flat, HNSW, IVF), building it with proper parameters, and maintaining it as your data grows
+        and changes.
+      </p>
+      <p>
+        Using FAISS, you can:
+      </p>
+      <ul>
+        <li>Store high-dimensional embeddings.</li>
+        <li>Perform efficient similarity search.</li>
+        <li>Tune accuracy vs performance for your application.</li>
+      </ul>
+      <p>
+        The toy example with an <code>IndexHNSWFlat</code> index gives a concrete picture of how these
+        concepts come together in real Python code.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
