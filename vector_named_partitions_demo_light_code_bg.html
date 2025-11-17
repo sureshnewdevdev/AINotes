@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Named Partitions in Vector Collection - Python Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      margin: 0;
+      padding: 0;
+      line-height: 1.7;
+    }
+    header {
+      background: #111827;
+      color: #f9fafb;
+      padding: 18px 24px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.7rem;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h2 {
+      margin-top: 26px;
+      color: #111827;
+      border-left: 4px solid #2563eb;
+      padding-left: 10px;
+      font-size: 1.25rem;
+    }
+    p {
+      margin: 6px 0 10px;
+    }
+    ul {
+      margin: 6px 0 10px 22px;
+    }
+    code {
+      background: #e5e7eb;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #f4f4f5; /* light gray background instead of dark */
+      color: #111827;       /* dark text for readability */
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      border: 1px solid #e5e7eb;
+    }
+    .note {
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 10px 12px;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Named Partitions in a Vector Collection – Python Program</h1>
+  </header>
+  <main>
+    <section>
+      <p>
+        This page contains the complete Python program and explanation that demonstrates:
+      </p>
+      <ul>
+        <li>How to give custom <strong>names</strong> to partitions (e.g., <code>"fruits"</code>, <code>"juices"</code>).</li>
+        <li>How to <strong>upsert</strong> vectors into a specific partition by name.</li>
+        <li>How to <strong>call / access</strong> partitions by name and search within them.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Updated Example: Named Partitions + How to Use Them</h2>
+      <pre><code>\"\"\"
+Demo: Named partitions for a vector 'Collection'
+
+This script shows:
+1. How to give custom NAMES to partitions (e.g., "fruits", "juices").
+2. How to UPSERT vectors into a specific partition by name.
+3. How to iterate / call partitions by name and perform simple search.
+
+Note:
+- This is a conceptual demo using pure Python.
+\"\"\"
+
+from typing import Dict, List, Any, Optional
+import math
+
+
+class VectorCollection:
+    \"\"\"
+    A simple in-memory "Collection" with NAMED partitions.
+
+    - partitions is a dict:
+        partition_name (str) -> { id -> {"vector": [...], "metadata": {...}} }
+    \"\"\"
+
+    def __init__(
+        self,
+        name: str,
+        dim: int,
+        partition_names: Optional[List[str]] = None,
+        default_num_partitions: int = 2
+    ):
+        \"\"\"
+        :param name:            Collection name (e.g., "products").
+        :param dim:             Vector dimension (e.g., 4, 384, 768).
+        :param partition_names: Optional list of custom partition names.
+                                Example: ["fruits", "juices", "others"]
+        :param default_num_partitions: Used only if partition_names is None.
+        \"\"\"
+        self.name = name
+        self.dim = dim
+
+        # If user provides custom names, use them.
+        if partition_names is not None and len(partition_names) > 0:
+            self.partition_names = partition_names
+        else:
+            # Fall back to generic names if no names are provided
+            self.partition_names = [
+                f"partition_{i}" for i in range(default_num_partitions)
+            ]
+
+        # Map of partition_name -> {vector_id -> record}
+        self.partitions: Dict[str, Dict[str, Dict[str, Any]]] = {
+            pname: {} for pname in self.partition_names
+        }
+
+    # -----------------------------
+    # Helper Methods
+    # -----------------------------
+
+    def _validate_vector(self, vector: List[float]) -> None:
+        \"\"\"Ensure that the vector has the correct dimension.\"\"\"
+        if len(vector) != self.dim:
+            raise ValueError(
+                f"Vector dimension mismatch. Expected {self.dim}, got {len(vector)}"
+            )
+
+    def _choose_partition_automatically(self, vector_id: str) -> str:
+        \"\"\"
+        Simple automatic partitioning rule:
+        - Use hash-based partitioning: hash(id) % number_of_partitions
+
+        This is used ONLY when caller does NOT specify a partition_name.
+        \"\"\"
+        idx = hash(vector_id) % len(self.partition_names)
+        return self.partition_names[idx]
+
+    # -----------------------------
+    # Core Operations
+    # -----------------------------
+
+    def upsert_vector(
+        self,
+        vector_id: str,
+        vector: List[float],
+        metadata: Dict[str, Any],
+        partition_name: Optional[str] = None
+    ):
+        \"\"\"
+        UPSERT operation with optional named partition:
+
+        - If vector_id already exists in any partition → UPDATE it in that partition.
+        - Else:
+            * If partition_name is given → INSERT into that partition.
+            * If partition_name is None → use automatic partitioning.
+
+        :param vector_id: Unique ID of the vector.
+        :param vector:    The embedding (list of floats).
+        :param metadata:  Extra info (e.g., name, category).
+        :param partition_name: Name of the partition (e.g., "fruits").
+        \"\"\"
+
+        self._validate_vector(vector)
+
+        # 1) Check if the ID already exists anywhere (UPDATE case)
+        for p_name, store in self.partitions.items():
+            if vector_id in store:
+                store[vector_id]["vector"] = vector
+                store[vector_id]["metadata"] = metadata
+                print(f"[UPSERT] Updated ID '{vector_id}' in partition '{p_name}'")
+                return
+
+        # 2) If ID does not exist → INSERT case
+        if partition_name is not None:
+            # Validate that the given partition name exists
+            if partition_name not in self.partitions:
+                raise ValueError(
+                    f"Partition '{partition_name}' does not exist. "
+                    f"Available partitions: {list(self.partitions.keys())}"
+                )
+            target_partition = partition_name
+        else:
+            # If no partition specified, choose automatically
+            target_partition = self._choose_partition_automatically(vector_id)
+
+        self.partitions[target_partition][vector_id] = {
+            "vector": vector,
+            "metadata": metadata
+        }
+        print(f"[UPSERT] Inserted ID '{vector_id}' into partition '{target_partition}'")
+
+    def get_vector(self, vector_id: str):
+        \"\"\"
+        Retrieve a vector by ID (searches all partitions).
+
+        :return: (partition_name, record) or (None, None) if not found.
+        \"\"\"
+        for p_name, store in self.partitions.items():
+            if vector_id in store:
+                return p_name, store[vector_id]
+        return None, None
+
+    def get_partition(self, partition_name: str) -> Dict[str, Dict[str, Any]]:
+        \"\"\"
+        Return the raw dictionary for a specific partition.
+
+        This shows "how to call the partition" by name.
+
+        :param partition_name: Name of partition (e.g., "fruits").
+        \"\"\"
+        if partition_name not in self.partitions:
+            raise ValueError(
+                f"Partition '{partition_name}' does not exist. "
+                f"Available partitions: {list(self.partitions.keys())}"
+            )
+        return self.partitions[partition_name]
+
+    def print_collection_summary(self):
+        \"\"\"Print the number of vectors in each partition.\"\"\"
+        print(f\"\\n=== Collection Summary: '{self.name}' ===\")
+        total = 0
+        for p_name, store in self.partitions.items():
+            count = len(store)
+            total += count
+            print(f\"  {p_name}: {count} vectors\")
+        print(f\"  TOTAL: {total} vectors\\n\")
+
+    def search_in_partition(
+        self,
+        partition_name: str,
+        query_vector: List[float],
+        top_k: int = 3
+    ):
+        \"\"\"
+        Perform a simple brute-force L2 search inside ONE partition.
+
+        :param partition_name: Where to search (e.g., "fruits").
+        :param query_vector:   The query embedding.
+        :param top_k:          Number of nearest neighbors to return.
+        :return: list of (vector_id, distance)
+        \"\"\"
+
+        self._validate_vector(query_vector)
+
+        if partition_name not in self.partitions:
+            raise ValueError(
+                f"Partition '{partition_name}' does not exist. "
+                f"Available partitions: {list(self.partitions.keys())}"
+            )
+
+        store = self.partitions[partition_name]
+        results = []
+        for vec_id, record in store.items():
+            dist = math.dist(query_vector, record["vector"])
+            results.append((vec_id, dist))
+
+        results.sort(key=lambda x: x[1])  # sort by distance ascending
+        return results[:top_k]
+
+
+# -------------------------------------------------------------
+# DEMO: Using Named Partitions
+# -------------------------------------------------------------
+if __name__ == "__main__":
+    # 1) Create a collection with NAMED partitions
+    #    We explicitly name our partitions:
+    #    - "fruits"
+    #    - "juices"
+    #    - "others"
+    collection = VectorCollection(
+        name="products",
+        dim=4,
+        partition_names=["fruits", "juices", "others"]
+    )
+
+    # 2) UPSERT vectors INTO SPECIFIC partitions by name
+    collection.upsert_vector(
+        vector_id="p1",
+        vector=[0.9, 0.1, 0.0, 0.0],
+        metadata={"name": "Red apple", "category": "fruit"},
+        partition_name="fruits"   # explicitly go to "fruits"
+    )
+
+    collection.upsert_vector(
+        vector_id="p2",
+        vector=[0.85, 0.15, 0.0, 0.0],
+        metadata={"name": "Green apple", "category": "fruit"},
+        partition_name="fruits"
+    )
+
+    collection.upsert_vector(
+        vector_id="p3",
+        vector=[0.0, 0.1, 0.9, 0.1],
+        metadata={"name": "Orange juice", "category": "juice"},
+        partition_name="juices"
+    )
+
+    # 3) UPSERT without specifying partition_name → will auto-choose
+    collection.upsert_vector(
+        vector_id="p4",
+        vector=[0.1, 0.9, 0.0, 0.0],
+        metadata={"name": "Banana", "category": "fruit"}
+        # no partition_name → automatic placement
+    )
+
+    # 4) Show how many vectors are in each partition
+    collection.print_collection_summary()
+
+    # 5) HOW TO CALL / ACCESS A PARTITION BY NAME
+    fruits_partition = collection.get_partition("fruits")
+    print("Contents of 'fruits' partition:")
+    for vid, rec in fruits_partition.items():
+        print(f"  ID={vid}, name={rec['metadata']['name']}")
+
+    print()
+
+    # 6) HOW TO SEARCH INSIDE A SPECIFIC PARTITION (e.g., only 'fruits')
+    query = [0.88, 0.12, 0.0, 0.0]  # pretend query similar to apples
+    results = collection.search_in_partition("fruits", query_vector=query, top_k=2)
+
+    print("Top-2 nearest neighbors in 'fruits' partition:")
+    for vid, dist in results:
+        _, rec = collection.get_vector(vid)
+        print(f"  ID={vid}, distance={dist:.4f}, name={rec['metadata']['name']}")
+</code></pre>
+
+      <div class="note">
+        <strong>Summary:</strong> This program shows that you can:
+        <ul>
+          <li>Assign custom names to partitions at collection creation time.</li>
+          <li>Upsert vectors into a specific partition by providing <code>partition_name</code>.</li>
+          <li>Access partitions by name using <code>get_partition("fruits")</code>.</li>
+          <li>Run a search limited to one partition using <code>search_in_partition(...)</code>.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
