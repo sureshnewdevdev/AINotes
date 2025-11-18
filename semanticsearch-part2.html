@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vector DB Tutorial – Semantic Search & NLP Helpers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+      line-height: 1.7;
+    }
+    header {
+      background: #0b6fa4;
+      color: #fff;
+      padding: 16px 24px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #ffffff;
+    }
+    h2, h3, h4 {
+      color: #0b6fa4;
+      margin-top: 28px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    ul {
+      margin: 6px 0 12px 24px;
+    }
+    .toc {
+      background: #f0f8ff;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 4px solid #0b6fa4;
+      margin-bottom: 24px;
+    }
+    .box {
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 14px 16px;
+      border-left: 4px solid #0b6fa4;
+      margin: 16px 0;
+    }
+    pre {
+      background: #f4f4f4;
+      color: #111;
+      padding: 14px;
+      border-left: 5px solid #4CAF50;
+      border-radius: 6px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+    .diagram {
+      background: #fffdf0;
+      border-radius: 6px;
+      padding: 12px;
+      border: 1px dashed #c7a300;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .qa {
+      margin-bottom: 18px;
+    }
+    .qa h4 {
+      margin-bottom: 4px;
+    }
+    footer {
+      margin-top: 40px;
+      padding: 12px 24px 24px;
+      font-size: 13px;
+      background: #f5f5f5;
+      border-top: 1px solid #ddd;
+    }
+    .footnote {
+      margin-bottom: 10px;
+    }
+    a {
+      color: #0b6fa4;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Vector DB – Semantic Search, Embeddings, NER & Metadata</h1>
+</header>
+
+<div class="container">
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <strong>Table of Contents</strong>
+    <ul>
+      <li><a href="#vector-query">Vector Query with Semantic Search</a></li>
+      <li><a href="#embedding-models">Vector Embedding Models</a></li>
+      <li><a href="#data-preparation">Data Preparation</a></li>
+      <li><a href="#embedding-batches">Vector Embedding in Batches</a></li>
+      <li><a href="#ner-helper">NER Helper Function</a></li>
+      <li><a href="#metadata-processing">Metadata Processing</a></li>
+      <li><a href="#interview">Interview Questions & Answers</a></li>
+      <li><a href="#footnotes">Technical Footnotes / Glossary</a></li>
+    </ul>
+  </div>
+
+  <!-- 1. Vector Query with Semantic Search -->
+  <h2 id="vector-query">1. Vector Query with Semantic Search</h2>
+
+  <h3>1.1 Detailed Explanation</h3>
+  <p>
+    A <strong>vector query<sup><a href="#fn1">[1]</a></sup></strong> is a query that is executed against a collection of
+    high-dimensional vectors (embeddings) instead of plain text. In
+    <strong>semantic search<sup><a href="#fn2">[2]</a></sup></strong>, both the user query and the documents are converted
+    into numerical vectors using an <strong>embedding model<sup><a href="#fn3">[3]</a></sup></strong>. The
+    <strong>vector database<sup><a href="#fn4">[4]</a></sup></strong> then finds which document vectors are closest
+    to the query vector according to a similarity metric such as
+    <strong>cosine similarity<sup><a href="#fn5">[5]</a></sup></strong>.
+  </p>
+  <p>
+    Instead of asking “Does this document contain the exact word ‘login’?”,
+    semantic search asks “Is the meaning of this document similar to the meaning
+    of the query about logging in?”. This allows the system to match
+    “sign in”, “log on”, or “access my account” to the same set of documents.
+  </p>
+
+  <div class="diagram">
+User Query: "How do I sign in?"
+
+   |
+   v
+[Embedding Model]<sup>[3]</sup>
+   |
+   v
+Query Vector (e.g., 768 numbers)
+
+   |
+   v
+[Vector DB Similarity Search]<sup>[4][5]</sup>
+   |
+   v
+Top-k Document Vectors
+   |
+   v
+Most relevant documents returned to user
+  </div>
+
+  <h3>1.2 When, Where, and Why We Need Vector Queries</h3>
+  <ul>
+    <li><strong>When?</strong>  
+      - Users search using natural language questions.  
+      - Exact keyword matching does not give good results.  
+      - There are many synonyms and paraphrases in the data.
+    </li>
+    <li><strong>Where?</strong>  
+      - Documentation and FAQ search.  
+      - Chatbots and virtual assistants.  
+      - Recommendation systems (e.g., “similar articles/products”).  
+      - Code search and log search.
+    </li>
+    <li><strong>Why?</strong>  
+      - Captures meaning instead of only exact words.  
+      - Handles spelling differences and synonyms gracefully.  
+      - Integrates beautifully with large language models in
+        <strong>Retrieval-Augmented Generation (RAG)<sup><a href="#fn6">[6]</a></sup></strong> workflows.
+    </li>
+  </ul>
+
+  <h3>1.3 Python Example: Vector Query with Semantic Search</h3>
+  <p>This example uses <code>sentence-transformers</code> with <code>faiss</code>.</p>
+
+  <pre><code># pip install sentence-transformers faiss-cpu
+
+from sentence_transformers import SentenceTransformer
+import faiss
+import numpy as np
+
+# 1. Load an embedding model (creates vector representations of text)[3]
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# 2. Our tiny document collection
+documents = [
+    "You can reset your password from the login page.",
+    "Contact support if you cannot access your account.",
+    "We store all documents in a secure object storage bucket.",
+    "Learn how to integrate our product with Python."
+]
+
+# 3. Encode documents into a 2D array of vectors
+doc_embeddings = model.encode(documents, convert_to_numpy=True)
+
+# 4. Build a FAISS index for similarity search
+dimension = doc_embeddings.shape[1]
+index = faiss.IndexFlatIP(dimension)          # IP = inner product (works with normalized vectors)[5]
+
+# Normalize embeddings for cosine similarity via inner product
+doc_norms = np.linalg.norm(doc_embeddings, axis=1, keepdims=True)
+doc_embeddings_normalized = doc_embeddings / doc_norms
+
+index.add(doc_embeddings_normalized)
+
+# 5. Encode the user query and normalize
+query = "How do I sign in to my account?"
+query_embedding = model.encode([query], convert_to_numpy=True)
+query_embedding = query_embedding / np.linalg.norm(query_embedding, axis=1, keepdims=True)
+
+# 6. Perform vector query (top 3 most similar)
+k = 3
+scores, indices = index.search(query_embedding, k)
+
+print("Query:", query)
+print("\nTop results:")
+for rank, idx in enumerate(indices[0]):
+    print(f"{rank+1}. {documents[idx]} (score={scores[0][rank]:.4f})")</code></pre>
+
+  <!-- 2. Vector Embedding Models -->
+  <h2 id="embedding-models">2. Vector Embedding Models</h2>
+
+  <h3>2.1 Detailed Explanation</h3>
+  <p>
+    A <strong>vector embedding model<sup><a href="#fn3">[3]</a></sup></strong> is a machine learning model that
+    converts text (or images, audio, etc.) into numerical vectors. These models are
+    typically built on top of <strong>transformer architectures<sup><a href="#fn7">[7]</a></sup></strong>
+    and are trained so that texts with similar meanings get similar vectors.
+  </p>
+  <p>
+    Common categories of embedding models include:
+  </p>
+  <ul>
+    <li><strong>Sentence Transformers:</strong> e.g., <code>all-MiniLM-L6-v2</code>, optimized for sentence-level similarity.</li>
+    <li><strong>LLM-based Embedding APIs:</strong> e.g., OpenAI, Azure OpenAI, where you send text and receive vectors.</li>
+    <li><strong>Legacy Models:</strong> Word2Vec, GloVe, fastText – mainly word-level embeddings, less used for modern semantic search.</li>
+  </ul>
+
+  <div class="diagram">
+Text Input
+   |
+   v
+[Tokenizer]<sup>[8]</sup>
+   |
+   v
+[Transformer Layers]<sup>[7]</sup>
+   |
+   v
+[Pooling Operation] (e.g., mean of token embeddings)
+   |
+   v
+Embedding Vector (e.g., 384 / 768 dimensions)<sup>[9]</sup>
+  </div>
+
+  <h3>2.2 When, Where, and Why We Need Embedding Models</h3>
+  <ul>
+    <li><strong>When?</strong>  
+      - Building any system that needs to understand similarity between texts.  
+      - Creating semantic search, clustering, topic discovery, or recommendation features.
+    </li>
+    <li><strong>Where?</strong>  
+      - Knowledge bases, help centers, document management systems.  
+      - E-commerce (similar products, product discovery).  
+      - Social media analysis, log analysis, anomaly detection.
+    </li>
+    <li><strong>Why?</strong>  
+      - Embeddings act as a universal numeric language for machine-learning models.  
+      - They allow you to use the same vector representation for multiple tasks:
+        search, clustering, classification, etc.
+    </li>
+  </ul>
+
+  <h3>2.3 Python Example: Comparing Two Embedding Models</h3>
+
+  <pre><code># pip install sentence-transformers
+
+from sentence_transformers import SentenceTransformer, util
+
+# Model 1: small and fast
+model_small = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Model 2: slightly larger (example - you can choose another one)
+model_large = SentenceTransformer("all-mpnet-base-v2")
+
+sent1 = "Login failed because the password was incorrect."
+sent2 = "Authentication error: wrong password."
+
+emb1_small = model_small.encode(sent1, convert_to_tensor=True)
+emb2_small = model_small.encode(sent2, convert_to_tensor=True)
+
+emb1_large = model_large.encode(sent1, convert_to_tensor=True)
+emb2_large = model_large.encode(sent2, convert_to_tensor=True)
+
+# Use cosine similarity to compare sentence pairs
+sim_small = util.cos_sim(emb1_small, emb2_small).item()
+sim_large = util.cos_sim(emb1_large, emb2_large).item()
+
+print("Small model similarity :", sim_small)
+print("Large model similarity :", sim_large)</code></pre>
+
+
+  <!-- 3. Data Preparation -->
+  <h2 id="data-preparation">3. Data Preparation</h2>
+
+  <h3>3.1 Detailed Explanation</h3>
+  <p>
+    <strong>Data preparation<sup><a href="#fn10">[10]</a></sup></strong> is the process of turning raw content into a
+    structured form that is ready for embedding and storage in a vector database.
+    It usually includes cleaning, normalization, splitting long documents into
+    chunks, and attaching metadata.
+  </p>
+  <p>
+    For example, a long PDF user guide may be split into smaller sections (paragraphs)
+    so that each section can be retrieved individually when someone asks a question.
+  </p>
+
+  <div class="diagram">
+Raw Data Sources
+ (PDFs, HTML pages, tickets, blogs)
+       |
+       v
+[Cleaning & Normalization]
+       |
+       v
+[Chunking into Paragraphs]<sup>[11]</sup>
+       |
+       v
+[Attach Metadata]<sup>[12]</sup>
+       |
+       v
+Ready-for-Embedding Records
+  </div>
+
+  <h3>3.2 When, Where, and Why We Need Data Preparation</h3>
+  <ul>
+    <li><strong>When?</strong>  
+      - Before building an index in a vector database.  
+      - When integrating data from multiple sources with different formats.
+    </li>
+    <li><strong>Where?</strong>  
+      - ETL / ELT pipelines, data engineering workflows.  
+      - Analytics and search platforms.
+    </li>
+    <li><strong>Why?</strong>  
+      - Clean, well-structured data produces higher quality embeddings.  
+      - Smaller chunks and good metadata improve relevance and explainability of search results.
+    </li>
+  </ul>
+
+  <h3>3.3 Python Example: Data Preparation for a Vector DB</h3>
+
+  <pre><code>import re
+from textwrap import wrap
+
+def clean_text(text: str) -&gt; str:
+    # Lowercase
+    text = text.lower()
+    # Remove HTML tags
+    text = re.sub(r"&lt;.*?&gt;", " ", text)
+    # Remove multiple spaces
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+def chunk_text(text: str, max_chars: int = 300) -&gt; list[str]:
+    # Simple character-based chunking[11]
+    return wrap(text, max_chars)
+
+raw_doc = """
+&lt;h1&gt;Login Troubleshooting&lt;/h1&gt;
+If you cannot login to your account, please check that
+your username and password are correct. If the problem
+continues, try resetting your password or contacting support.
+"""
+
+cleaned = clean_text(raw_doc)
+chunks = chunk_text(cleaned, max_chars=120)
+
+records = []
+for i, chunk in enumerate(chunks):
+    record = {
+        "id": f"login-guide-{i}",
+        "text": chunk,
+        "metadata": {
+            "section": "login_troubleshooting",   # metadata[12]
+            "chunk_index": i
+        }
+    }
+    records.append(record)
+
+for r in records:
+    print(r)</code></pre>
+
+
+  <!-- 4. Vector Embedding in Batches -->
+  <h2 id="embedding-batches">4. Vector Embedding in Batches</h2>
+
+  <h3>4.1 Detailed Explanation</h3>
+  <p>
+    When the dataset is large, embedding all records one-by-one is slow and
+    inefficient. Instead, we process them in <strong>batches<sup><a href="#fn13">[13]</a></sup></strong>.
+    A batch is a group of items sent together to the model.
+  </p>
+  <p>
+    Batch processing uses the parallelism of modern hardware (GPUs/CPUs) and
+    reduces overhead from repeated model calls or API requests.
+  </p>
+
+  <div class="diagram">
+Records: [doc1, doc2, doc3, doc4, doc5, doc6, ...]
+
+Split into Batches (size = 3):
+  Batch 1: [doc1, doc2, doc3]
+  Batch 2: [doc4, doc5, doc6]
+  ...
+
+Each Batch -&gt; Embedding Model -&gt; Vectors stored in Vector DB
+  </div>
+
+  <h3>4.2 When, Where, and Why We Need Batch Embedding</h3>
+  <ul>
+    <li><strong>When?</strong>  
+      - Ingesting large datasets: thousands or millions of documents.  
+      - Calling external embedding APIs with rate limits.
+    </li>
+    <li><strong>Where?</strong>  
+      - Initial index building stage, or regular re-indexing.  
+      - ETL jobs scheduled daily or hourly.
+    </li>
+    <li><strong>Why?</strong>  
+      - Much faster than per-document embedding.  
+      - More memory-efficient and cost-effective.  
+      - Allows graceful handling of failures (retry batch instead of entire dataset).
+    </li>
+  </ul>
+
+  <h3>4.3 Python Example: Batch Embedding and Upsert</h3>
+
+  <pre><code># pip install sentence-transformers chromadb
+
+from sentence_transformers import SentenceTransformer
+import chromadb
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+client = chromadb.PersistentClient(path="./batch_vector_store")
+
+collection = client.get_or_create_collection(name="articles")
+
+documents = [f"Sample article number {i}" for i in range(1, 21)]
+
+def batch(iterable, size):
+    for i in range(0, len(iterable), size):
+        yield iterable[i:i + size]
+
+batch_size = 5
+for batch_index, docs_batch in enumerate(batch(documents, batch_size)):
+    print(f"Processing batch {batch_index+1} with {len(docs_batch)} documents")
+    embeddings = model.encode(docs_batch, convert_to_numpy=True)  # batch embedding[13]
+
+    ids = [f"doc-{batch_index*batch_size + i}" for i in range(len(docs_batch))]
+    metadatas = [{"batch": batch_index} for _ in docs_batch]
+
+    # Many vector DB clients support passing embeddings directly;
+    # with chroma, embeddings can be handled internally using embedding_function,
+    # here we show the structure.
+    collection.upsert(ids=ids, documents=docs_batch, metadatas=metadatas)
+
+print("Batch embedding & upsert complete.")</code></pre>
+
+
+  <!-- 5. NER Helper Function -->
+  <h2 id="ner-helper">5. NER Helper Function</h2>
+
+  <h3>5.1 Detailed Explanation</h3>
+  <p>
+    <strong>Named Entity Recognition (NER)<sup><a href="#fn14">[14]</a></sup></strong> is the task of detecting
+    important entities in text, such as people, organizations, locations, products,
+    and dates. A <strong>NER helper function</strong> is a small utility that uses an NER
+    model to extract entities and then uses them to enrich metadata or improve search.
+  </p>
+  <p>
+    For example, in a support ticket system, NER can find product names, customer
+    names, or city names so that queries like “issues with Product X in Mumbai” work better.
+  </p>
+
+  <div class="diagram">
+Text:
+  "Order 123 was shipped from Chennai to Mumbai using BlueDart."
+
+       |
+       v
+[NER Model]<sup>[14]</sup>
+       |
+       v
+Entities:
+  ("Chennai", LOCATION)
+  ("Mumbai", LOCATION)
+  ("BlueDart", ORG)
+  ("123", NUMBER / ORDER_ID)
+
+       |
+       v
+Attach entities as metadata -&gt; better filters and search
+  </div>
+
+  <h3>5.2 When, Where, and Why We Need NER Helpers</h3>
+  <ul>
+    <li><strong>When?</strong>  
+      - Text contains many concrete entities (cities, people, products).  
+      - You want to support filters like “city=Mumbai” or “product=VectorDB Pro”.
+    </li>
+    <li><strong>Where?</strong>  
+      - Customer support tickets, CRM notes, shipping logs, legal documents.  
+      - News article classification or alerting systems.
+    </li>
+    <li><strong>Why?</strong>  
+      - Adds structured information on top of unstructured text.  
+      - Allows entity-based search, analytics and dashboards.  
+      - Helps LLMs provide more precise answers in RAG systems.
+    </li>
+  </ul>
+
+  <h3>5.3 Python Example: NER Helper with spaCy</h3>
+
+  <pre><code># pip install spacy
+# python -m spacy download en_core_web_sm
+
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+
+def ner_helper(text: str):
+    doc = nlp(text)
+    entities = []
+    for ent in doc.ents:
+        entities.append({"text": ent.text, "label": ent.label_})
+    return entities
+
+sample = "Order 123 was shipped from Chennai to Mumbai using BlueDart."
+
+print("Text:", sample)
+print("Entities:")
+for e in ner_helper(sample):
+    print(f" - {e['text']} ({e['label']})")</code></pre>
+
+  <p>
+    The entities returned by <code>ner_helper</code> can be added into metadata before
+    sending data to the vector database.
+  </p>
+
+
+  <!-- 6. Metadata Processing -->
+  <h2 id="metadata-processing">6. Metadata Processing</h2>
+
+  <h3>6.1 Detailed Explanation</h3>
+  <p>
+    <strong>Metadata<sup><a href="#fn12">[12]</a></sup></strong> is “data about data”. In a vector search system,
+    each document (or chunk) usually has fields such as:
+  </p>
+  <ul>
+    <li><code>id</code> – unique identifier.</li>
+    <li><code>source</code> – where the text came from (PDF, wiki, ticket system).</li>
+    <li><code>category</code> – topic or type.</li>
+    <li><code>created_at</code> – timestamp.</li>
+    <li><code>entities</code> – extracted via NER helper.</li>
+  </ul>
+  <p>
+    <strong>Metadata processing</strong> means designing, cleaning and enriching these fields so that
+    queries can filter and rank results more effectively.
+  </p>
+
+  <div class="diagram">
+Document Chunk
+   |
+   +-- text: "Password reset steps for Product X."
+   +-- metadata:
+         {
+           "source": "help_center",
+           "product": "Product X",
+           "language": "en",
+           "created_at": "2025-11-01",
+           "entities": ["Product X"]
+         }
+
+Vector DB stores:
+   (embedding_vector, metadata)
+  </div>
+
+  <h3>6.2 When, Where, and Why We Need Metadata Processing</h3>
+  <ul>
+    <li><strong>When?</strong>  
+      - You want filters like “only show results for Product X”.  
+      - You need to separate internal vs external documents.  
+      - You want ranking rules such as “prefer newer documents”.
+    </li>
+    <li><strong>Where?</strong>  
+      - Enterprise search, multi-tenant SaaS platforms.  
+      - Knowledge bases with multiple products or business units.
+    </li>
+    <li><strong>Why?</strong>  
+      - Metadata filters greatly improve result relevance.  
+      - They enable efficient routing (e.g., which department owns this doc?).  
+      - They help with access control (e.g., user can see only their company’s docs).
+    </li>
+  </ul>
+
+  <h3>6.3 Python Example: Preparing Metadata and Filtering in a Vector DB</h3>
+
+  <pre><code># Example with chromadb; other vector DBs have similar metadata filters
+
+# pip install chromadb sentence-transformers
+
+import chromadb
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+
+client = chromadb.PersistentClient(path="./metadata_store")
+
+embedding_func = SentenceTransformerEmbeddingFunction("all-MiniLM-L6-v2")
+
+collection = client.get_or_create_collection(
+    name="kb_with_metadata",
+    embedding_function=embedding_func
+)
+
+docs = [
+    "Password reset steps for Product X.",
+    "Installation guide for Product Y on Linux.",
+    "Troubleshooting Product X database connection issues.",
+]
+
+metadatas = [
+    {"product": "X", "category": "auth", "language": "en"},
+    {"product": "Y", "category": "install", "language": "en"},
+    {"product": "X", "category": "troubleshooting", "language": "en"},
+]
+
+ids = ["doc-x-1", "doc-y-1", "doc-x-2"]
+
+# Upsert with metadata
+collection.upsert(ids=ids, documents=docs, metadatas=metadatas)
+
+# Query with metadata filter: only Product X
+query = "How do I fix login issues?"
+result = collection.query(
+    query_texts=[query],
+    n_results=5,
+    where={"product": "X"}  # metadata filter[12]
+)
+
+print("Query:", query)
+print("Filtered results (product X only):")
+print(result)</code></pre>
+
+
+  <!-- Interview Questions -->
+  <h2 id="interview">7. Interview Questions &amp; Answers</h2>
+
+  <div class="qa">
+    <h4>Q1. What is a vector query and how is it used in semantic search?</h4>
+    <p><strong>Answer:</strong>  
+      A vector query is a query represented as an embedding vector<sup><a href="#fn1">[1]</a></sup>. In semantic search,
+      the user’s text query is converted into a vector using an embedding model<sup><a href="#fn3">[3]</a></sup> and compared
+      with document vectors stored in a vector database<sup><a href="#fn4">[4]</a></sup> using a similarity measure such as
+      cosine similarity<sup><a href="#fn5">[5]</a></sup>.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q2. How do vector embedding models differ from traditional keyword-based approaches?</h4>
+    <p><strong>Answer:</strong>  
+      Embedding models convert text into high-dimensional vectors that encode meaning
+      rather than exact word forms. Traditional keyword search relies on matching
+      exact tokens. Embeddings allow “sign in” and “log in” to be close in vector space,
+      which is not guaranteed in keyword-based systems.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q3. Why is data preparation important before building a vector-based search system?</h4>
+    <p><strong>Answer:</strong>  
+      Data preparation ensures that the text is clean, normalized and split into
+      appropriate chunks<sup><a href="#fn11">[11]</a></sup>. This leads to better embeddings, more relevant search results,
+      and efficient storage. It also provides a consistent structure for attaching
+      metadata<sup><a href="#fn12">[12]</a></sup>.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q4. What are the advantages of embedding documents in batches?</h4>
+    <p><strong>Answer:</strong>  
+      Batch embedding<sup><a href="#fn13">[13]</a></sup> reduces the overhead of calling the model many times, uses hardware
+      efficiently, decreases total processing time, and fits nicely into ETL-style
+      processing pipelines. It is especially useful for large datasets.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q5. How can a NER helper function improve a semantic search system?</h4>
+    <p><strong>Answer:</strong>  
+      A NER helper function uses Named Entity Recognition<sup><a href="#fn14">[14]</a></sup> to extract entities such
+      as products, locations, or people from text. These entities can be stored as
+      metadata, enabling powerful filters (e.g., product = X) and more precise recall
+      for queries involving specific names.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q6. Give an example of how metadata can be used during a query.</h4>
+    <p><strong>Answer:</strong>  
+      A user may search for “database connection issues” but only for
+      “Product X”. The vector database can apply a metadata filter
+      <code>{"product": "X"}</code> so that only embeddings whose metadata product is X
+      are considered during similarity search.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q7. What is cosine similarity and why is it commonly used in vector search?</h4>
+    <p><strong>Answer:</strong>  
+      Cosine similarity<sup><a href="#fn5">[5]</a></sup> measures the cosine of the angle between two vectors. It focuses
+      on orientation rather than magnitude, which works well for embeddings where
+      direction encodes semantic meaning. It is scale-invariant and easy to compute.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q8. How would you choose an embedding model for a new project?</h4>
+    <p><strong>Answer:</strong>  
+      Important factors include language coverage, latency, model size, licensing,
+      and performance on similarity tasks. A small, fast model (like
+      <code>all-MiniLM-L6-v2</code>) might be enough for many internal tools,
+      while public-facing products with high quality requirements may benefit from
+      larger, more accurate models or hosted APIs.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q9. What role does chunking play in vector-based document retrieval?</h4>
+    <p><strong>Answer:</strong>  
+      Chunking<sup><a href="#fn11">[11]</a></sup> splits long documents into smaller parts such as paragraphs or sections.
+      Each chunk gets its own embedding and metadata. This allows the system to return
+      only the most relevant part of a long document instead of the entire file,
+      improving relevance and user experience.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q10. How do metadata and embeddings complement each other?</h4>
+    <p><strong>Answer:</strong>  
+      Embeddings capture semantic similarity, while metadata captures structured
+      attributes such as product, language or access level. Together, they enable
+      powerful queries like “find documents similar to this question but only for
+      product X, created in the last 30 days and in English.”
+    </p>
+  </div>
+
+
+  <!-- Footnotes / Glossary -->
+  <h2 id="footnotes">8. Technical Footnotes / Glossary</h2>
+
+  <div class="footnote" id="fn1">
+    <strong>[1] Vector:</strong>
+    An ordered list of numbers representing a point in a high-dimensional space.
+    In semantic search, each vector represents a text segment.
+  </div>
+
+  <div class="footnote" id="fn2">
+    <strong>[2] Semantic Search:</strong>
+    A search technique that focuses on the meaning of the query and documents,
+    rather than simple keyword matching.
+  </div>
+
+  <div class="footnote" id="fn3">
+    <strong>[3] Embedding Model:</strong>
+    A machine-learning model that maps text (or other data) to dense vectors so
+    that semantically similar inputs are close in vector space.
+  </div>
+
+  <div class="footnote" id="fn4">
+    <strong>[4] Vector Database:</strong>
+    A database optimized for storing and querying large collections of vectors,
+    supporting similarity search and metadata filters.
+  </div>
+
+  <div class="footnote" id="fn5">
+    <strong>[5] Cosine Similarity:</strong>
+    A measure of similarity between two vectors based on the cosine of the angle
+    between them. Values range from -1 (opposite) to 1 (identical).
+  </div>
+
+  <div class="footnote" id="fn6">
+    <strong>[6] Retrieval-Augmented Generation (RAG):</strong>
+    A pattern where an LLM retrieves relevant documents from a database and then
+    uses them as context to generate an answer.
+  </div>
+
+  <div class="footnote" id="fn7">
+    <strong>[7] Transformer Architecture:</strong>
+    A neural network design based on self-attention mechanisms, widely used in
+    modern language models such as BERT and GPT.
+  </div>
+
+  <div class="footnote" id="fn8">
+    <strong>[8] Tokenization:</strong>
+    The process of splitting text into smaller units (tokens) such as words or
+    subwords used as inputs to language models.
+  </div>
+
+  <div class="footnote" id="fn9">
+    <strong>[9] Embedding Dimension:</strong>
+    The length of the vector produced by an embedding model, e.g., 384 or 768.
+    Higher dimensional spaces can express more nuanced relationships but require
+    more memory and compute.
+  </div>
+
+  <div class="footnote" id="fn10">
+    <strong>[10] Data Preparation:</strong>
+    The workflow of cleaning, normalizing, structuring and enriching data before
+    it is used by downstream systems such as models or databases.
+  </div>
+
+  <div class="footnote" id="fn11">
+    <strong>[11] Chunking:</strong>
+    The act of breaking a long document into smaller segments, often by paragraph
+    or character length, so that each piece can be retrieved independently.
+  </div>
+
+  <div class="footnote" id="fn12">
+    <strong>[12] Metadata:</strong>
+    Descriptive information about a document or chunk, such as source, product,
+    creation time, language or extracted entities.
+  </div>
+
+  <div class="footnote" id="fn13">
+    <strong>[13] Batch Processing:</strong>
+    Processing many items together in groups (batches) rather than one at a time
+    to improve efficiency and throughput.
+  </div>
+
+  <div class="footnote" id="fn14">
+    <strong>[14] Named Entity Recognition (NER):</strong>
+    An NLP task that finds and classifies entities (people, organizations, locations,
+    dates, etc.) within text.
+  </div>
+
+</div>
+
+<footer>
+  &copy; ItTechGenie – Vector DB &amp; Semantic Search Tutorial
+</footer>
+
+</body>
+</html>

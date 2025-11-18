@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vector Search Tutorial – Concepts, Process & Optimization</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+      line-height: 1.7;
+    }
+    header {
+      background: #0b6fa4;
+      color: #fff;
+      padding: 16px 24px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #ffffff;
+    }
+    h2, h3, h4 {
+      color: #0b6fa4;
+      margin-top: 28px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    ul {
+      margin: 6px 0 12px 24px;
+    }
+    .toc {
+      background: #f0f8ff;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 4px solid #0b6fa4;
+      margin-bottom: 24px;
+    }
+    .box {
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 14px 16px;
+      border-left: 4px solid #0b6fa4;
+      margin: 16px 0;
+    }
+    pre {
+      background: #f4f4f4;
+      color: #111;
+      padding: 14px;
+      border-left: 5px solid #4CAF50;
+      border-radius: 6px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+    .diagram {
+      background: #fffdf0;
+      border-radius: 6px;
+      padding: 12px;
+      border: 1px dashed #c7a300;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .qa {
+      margin-bottom: 18px;
+    }
+    .qa h4 {
+      margin-bottom: 4px;
+    }
+    footer {
+      margin-top: 40px;
+      padding: 12px 24px 24px;
+      font-size: 13px;
+      background: #f5f5f5;
+      border-top: 1px solid #ddd;
+    }
+    .footnote {
+      margin-bottom: 10px;
+    }
+    a {
+      color: #0b6fa4;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Vector Search – Concepts, Process & Optimization</h1>
+</header>
+
+<div class="container">
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <strong>Table of Contents</strong>
+    <ul>
+      <li><a href="#vector-search">Vector Search</a></li>
+      <li><a href="#vector-search-process">Vector Search Process</a></li>
+      <li><a href="#optimization-techniques">Optimization Techniques in Vector Search</a></li>
+      <li><a href="#interview">Interview Questions &amp; Answers</a></li>
+      <li><a href="#footnotes">Technical Footnotes / Glossary</a></li>
+    </ul>
+  </div>
+
+  <!-- 1. Vector Search -->
+  <h2 id="vector-search">1. Vector Search</h2>
+
+  <h3>1.1 Detailed Explanation</h3>
+  <p>
+    <strong>Vector search<sup><a href="#fn1">[1]</a></sup></strong> is a way of searching where items are represented as
+    numerical vectors instead of raw text. Each document, image, or product is mapped
+    to a point in a high-dimensional space using an <strong>embedding model<sup><a href="#fn2">[2]</a></sup></strong>.
+    The user’s query is also converted into a vector, and the system finds items whose
+    vectors are closest to the query vector.
+  </p>
+  <p>
+    Instead of asking “Which documents contain the word <em>login</em>?”,
+    vector search asks “Which documents have a similar <em>meaning</em> to this sentence
+    about logging into the system?”. It uses distance or similarity metrics, such as
+    <strong>cosine similarity<sup><a href="#fn3">[3]</a></sup></strong>, to rank the results.
+  </p>
+
+  <div class="box">
+    <strong>Key idea:</strong>  
+    Similar meanings → similar vectors → small angle or distance between the vectors.
+  </div>
+
+  <h3>1.2 Simple Diagram of Vector Search</h3>
+  <div class="diagram">
+High-Dimensional Vector Space
+(only 2D shown here for simplicity)
+
+          doc A • (password reset article)
+                 \
+                  \
+       doc B •     \   • query
+ (login troubleshooting) \
+                           \
+                            • doc C (unrelated topic)
+
+The query vector is close to doc A and doc B, so they are returned first.
+  </div>
+
+  <h3>1.3 When, Where, and Why We Need Vector Search</h3>
+  <ul>
+    <li><strong>When?</strong>
+      <ul>
+        <li>Users write natural language questions (“How do I reset my password?”).</li>
+        <li>There are many synonyms, paraphrases and language variations.</li>
+        <li>You need “similar items” rather than exact keyword matches.</li>
+      </ul>
+    </li>
+    <li><strong>Where?</strong>
+      <ul>
+        <li>Documentation and FAQ portals.</li>
+        <li>Chatbots and virtual assistants.</li>
+        <li>E-commerce product recommendation (“similar products”).</li>
+        <li>Code search, log search, news and social media analysis.</li>
+      </ul>
+    </li>
+    <li><strong>Why?</strong>
+      <ul>
+        <li>Understands meaning instead of only literal words.</li>
+        <li>Handles spelling differences and different languages more gracefully.</li>
+        <li>Works extremely well with <strong>vector databases<sup><a href="#fn4">[4]</a></sup></strong> and
+            <strong>Retrieval-Augmented Generation (RAG)<sup><a href="#fn5">[5]</a></sup></strong>.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>1.4 Python Example: Basic Vector Search with Sentence Transformers + FAISS</h3>
+  <p>
+    This example shows how to encode text into vectors and perform a simple vector search
+    using <code>faiss</code> (a similarity search library) and a <strong>sentence-transformer model<sup><a href="#fn6">[6]</a></sup></strong>.
+  </p>
+
+  <pre><code># Install in terminal:
+# pip install sentence-transformers faiss-cpu
+
+from sentence_transformers import SentenceTransformer
+import faiss
+import numpy as np
+
+# 1. Load an embedding model that converts sentences to vectors[2][6]
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# 2. Our small document collection
+documents = [
+    "You can reset your password from the login page.",
+    "Contact support if you cannot access your account.",
+    "We use vector search to find semantically similar documents.",
+    "Docker allows you to run applications in containers."
+]
+
+# 3. Encode documents into a 2D NumPy array (num_docs x dim)
+doc_embeddings = model.encode(documents, convert_to_numpy=True)
+
+# 4. Build a FAISS index for similarity search
+dimension = doc_embeddings.shape[1]
+index = faiss.IndexFlatIP(dimension)  # IP = inner product; with normalized vectors it equals cosine similarity[3]
+
+# Normalize document vectors
+doc_norms = np.linalg.norm(doc_embeddings, axis=1, keepdims=True)
+doc_embeddings_norm = doc_embeddings / doc_norms
+
+# Add to index
+index.add(doc_embeddings_norm)
+
+# 5. Encode and normalize the query
+query = "I forgot my password and cannot log in."
+query_embedding = model.encode([query], convert_to_numpy=True)
+query_embedding = query_embedding / np.linalg.norm(query_embedding, axis=1, keepdims=True)
+
+# 6. Perform the vector search (top 3 most similar documents)
+k = 3
+scores, indices = index.search(query_embedding, k)
+
+print("Query:", query)
+print("\nTop results:")
+for rank, idx in enumerate(indices[0]):
+    print(f"{rank+1}. {documents[idx]} (score={scores[0][rank]:.4f})")</code></pre>
+
+
+  <!-- 2. Vector Search Process -->
+  <h2 id="vector-search-process">2. Vector Search Process</h2>
+
+  <h3>2.1 Detailed Explanation</h3>
+  <p>
+    The <strong>vector search process<sup><a href="#fn7">[7]</a></sup></strong> is the complete pipeline from
+    raw data to search results. It not only includes the query step, but also how data
+    is prepared, embedded, stored and updated. Understanding this process is essential
+    for designing reliable and scalable systems.
+  </p>
+
+  <h3>2.2 End-to-End Process Diagram</h3>
+  <div class="diagram">
+          OFFLINE / INGESTION PIPELINE
+          ----------------------------
+
+Raw Documents
+ (PDFs, tickets, wiki pages)
+      |
+      v
+[Data Preparation]<sup>[8]</sup>
+      |
+      v
+[Embedding Model]<sup>[2]</sup>
+      |
+      v
+Document Vectors + Metadata<sup>[9]</sup>
+      |
+      v
+[Vector Database Index]<sup>[4]</sup>
+
+
+          ONLINE / QUERY PIPELINE
+          -----------------------
+
+User Query Text
+      |
+      v
+Query Embedding (same model)<sup>[2]</sup>
+      |
+      v
+[Similarity Search in Index]
+      |
+      v
+Top-k Results (documents + scores)
+      |
+      v
+(Optional) Re-ranking / LLM Answer Generation<sup>[5]</sup>
+  </div>
+
+  <h3>2.3 When, Where, and Why We Care About the Process</h3>
+  <ul>
+    <li><strong>When?</strong>
+      <ul>
+        <li>Designing a new semantic search or RAG system.</li>
+        <li>Moving from prototype notebooks to a production pipeline.</li>
+        <li>Troubleshooting poor search quality or slow performance.</li>
+      </ul>
+    </li>
+    <li><strong>Where?</strong>
+      <ul>
+        <li>Data engineering workflows (ETL / ELT).</li>
+        <li>Machine-learning and MLOps pipelines.</li>
+        <li>Search microservices, APIs and backends.</li>
+      </ul>
+    </li>
+    <li><strong>Why?</strong>
+      <ul>
+        <li>Clear separation between offline ingestion and online query paths.</li>
+        <li>Helps decide where to cache, where to batch, and how to monitor.</li>
+        <li>Essential for reproducibility, auditing and debugging.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>2.4 Python Example: A Minimal Vector Search “Process” Script</h3>
+  <p>
+    The following script simulates both the ingestion step and the query step in
+    one place, with comments describing each part of the process.
+  </p>
+
+  <pre><code># pip install sentence-transformers faiss-cpu
+
+from sentence_transformers import SentenceTransformer
+import faiss
+import numpy as np
+
+# ---------------- INGESTION / INDEX BUILDING ----------------
+
+# 1. Load model
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# 2. Prepare data (in real systems you would clean & chunk the text first)[8]
+documents = [
+    "Step-by-step password reset procedure.",
+    "How to configure two-factor authentication.",
+    "Overview of our vector-based search architecture.",
+    "Guide to installing the mobile application."
+]
+
+# 3. Create embeddings
+doc_embeddings = model.encode(documents, convert_to_numpy=True)
+
+# 4. Build index
+dim = doc_embeddings.shape[1]
+index = faiss.IndexFlatIP(dim)
+
+# Normalize document vectors
+doc_embeddings_norm = doc_embeddings / np.linalg.norm(doc_embeddings, axis=1, keepdims=True)
+
+# 5. Store vectors in the index
+index.add(doc_embeddings_norm)
+
+# 6. Store mapping from index to original docs (in a real system this may be a DB)
+id_to_doc = {i: doc for i, doc in enumerate(documents)}
+
+# ---------------- QUERY / RUNTIME ----------------
+
+def vector_search(query_text: str, top_k: int = 3):
+    # a) Encode query
+    q_vec = model.encode([query_text], convert_to_numpy=True)
+    q_vec = q_vec / np.linalg.norm(q_vec, axis=1, keepdims=True)
+
+    # b) Run similarity search
+    scores, indices = index.search(q_vec, top_k)
+
+    # c) Convert indices back to documents
+    results = []
+    for idx, score in zip(indices[0], scores[0]):
+        results.append({"document": id_to_doc[idx], "score": float(score)})
+    return results
+
+if __name__ == "__main__":
+    query = "How can I reset my password?"
+    hits = vector_search(query, top_k=2)
+
+    print("Query:", query)
+    print("Top hits:")
+    for h in hits:
+        print(f" - {h['document']} (score={h['score']:.4f})")</code></pre>
+
+
+  <!-- 3. Optimization Techniques -->
+  <h2 id="optimization-techniques">3. Optimization Techniques in Vector Search</h2>
+
+  <h3>3.1 Detailed Explanation</h3>
+  <p>
+    As the number of vectors grows into millions or billions, <strong>brute-force search<sup><a href="#fn10">[10]</a></sup></strong>
+    (comparing the query against every vector) becomes too slow.  
+    <strong>Optimization techniques<sup><a href="#fn11">[11]</a></sup></strong> help make vector search fast and scalable
+    while keeping the quality of results high.
+  </p>
+  <p>
+    Common strategies include:
+  </p>
+  <ul>
+    <li><strong>Approximate Nearest Neighbor (ANN) Indexes<sup><a href="#fn12">[12]</a></sup></strong>  
+        Structures like HNSW, IVF, PQ approximate the nearest neighbors with much less work.</li>
+    <li><strong>Dimensionality Reduction<sup><a href="#fn13">[13]</a></sup></strong>  
+        Reduces vector dimensions (e.g., from 1536 to 256) to save memory and time.</li>
+    <li><strong>Caching<sup><a href="#fn14">[14]</a></sup></strong>  
+        Stores results for popular queries or embeddings to avoid recomputation.</li>
+    <li><strong>Sharding &amp; Replication<sup><a href="#fn15">[15]</a></sup></strong>  
+        Distributes the index across servers for horizontal scalability and high availability.</li>
+    <li><strong>Filter-First Search using Metadata</strong>  
+        Uses metadata filters to reduce the candidate set before vector similarity is computed.</li>
+  </ul>
+
+  <h3>3.2 Diagram: Exact Search vs Approximate Search</h3>
+  <div class="diagram">
+EXACT (Brute-Force) SEARCH
+--------------------------
+Query Vector
+    |
+    v
+Compare with ALL N vectors
+    |
+    v
+Sort all distances, take top-k
+(High recall, but slow for large N)
+
+
+APPROXIMATE (ANN) SEARCH
+------------------------
+Query Vector
+    |
+    v
+Search over a clever index structure
+(HNSW / IVF / PQ)
+    |
+    v
+Check only a subset of vectors
+    |
+    v
+Approximate top-k neighbors
+(Fast, with small loss in recall)
+  </div>
+
+  <h3>3.3 When, Where, and Why We Need Optimization</h3>
+  <ul>
+    <li><strong>When?</strong>
+      <ul>
+        <li>The vector collection is large (millions+ items).</li>
+        <li>Search latency requirements are strict (e.g., &lt; 100 ms).</li>
+        <li>System must handle high QPS (queries per second).</li>
+      </ul>
+    </li>
+    <li><strong>Where?</strong>
+      <ul>
+        <li>Large-scale search engines and recommendation systems.</li>
+        <li>Real-time analytics and monitoring platforms.</li>
+        <li>Global consumer applications with many users.</li>
+      </ul>
+    </li>
+    <li><strong>Why?</strong>
+      <ul>
+        <li>Reduces CPU/GPU cost and memory usage.</li>
+        <li>Improves user experience by returning results quickly.</li>
+        <li>Allows systems to grow without rewriting the entire architecture.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>3.4 Python Example: Using an HNSW Index with FAISS</h3>
+  <p>
+    The following example shows how to build a simple <strong>HNSW<sup><a href="#fn16">[16]</a></sup></strong>
+    approximate index in FAISS and adjust a parameter (<code>efSearch</code>) that controls
+    the trade-off between speed and accuracy.
+  </p>
+
+  <pre><code># pip install sentence-transformers faiss-cpu
+
+from sentence_transformers import SentenceTransformer
+import faiss
+import numpy as np
+import time
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Create a larger synthetic dataset for demonstration
+base_sent = "Sample document number "
+documents = [base_sent + str(i) for i in range(2000)]
+embeddings = model.encode(documents, convert_to_numpy=True)
+
+dim = embeddings.shape[1]
+
+# Build an HNSW index (approximate nearest neighbor)[12][16]
+m = 32  # number of neighbors in the graph
+index_hnsw = faiss.IndexHNSWFlat(dim, m)
+index_hnsw.hnsw.efConstruction = 40
+index_hnsw.add(embeddings)
+
+def search_with_ef(ef_search: int, query_text: str = "Sample document number 42"):
+    index_hnsw.hnsw.efSearch = ef_search   # higher = better recall, slower
+    q = model.encode([query_text], convert_to_numpy=True)
+
+    t0 = time.time()
+    distances, idx = index_hnsw.search(q, 5)
+    t1 = time.time()
+
+    print(f"\nefSearch={ef_search}, time={(t1 - t0)*1000:.2f} ms")
+    print("Top indices:", idx[0])
+
+# Try different efSearch values
+search_with_ef(ef_search=10)
+search_with_ef(ef_search=50)
+search_with_ef(ef_search=100)</code></pre>
+
+  <p>
+    In practice, you would compare the accuracy and latency of different settings and
+    choose the one that meets your quality and performance goals.
+  </p>
+
+
+  <!-- Interview Questions -->
+  <h2 id="interview">4. Interview Questions &amp; Answers</h2>
+
+  <div class="qa">
+    <h4>Q1. What is vector search and how is it different from keyword search?</h4>
+    <p><strong>Answer:</strong>  
+      Vector search<sup><a href="#fn1">[1]</a></sup> represents documents and queries as embeddings and compares them
+      using similarity metrics such as cosine similarity<sup><a href="#fn3">[3]</a></sup>. Keyword search matches literal
+      words or tokens. Vector search captures semantic similarity even when the exact
+      words do not match.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q2. Describe the main steps in a vector search process.</h4>
+    <p><strong>Answer:</strong>  
+      The typical process<sup><a href="#fn7">[7]</a></sup> is:
+      (1) prepare and clean the data<sup><a href="#fn8">[8]</a></sup>,
+      (2) generate embeddings using an embedding model<sup><a href="#fn2">[2]</a></sup>,
+      (3) store vectors and metadata<sup><a href="#fn9">[9]</a></sup> in a vector database<sup><a href="#fn4">[4]</a></sup>,
+      (4) for each query, create a query embedding, 
+      (5) run similarity search in the index,
+      and (6) return and optionally post-process the top-k results.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q3. What is an embedding model and why is it so important for vector search?</h4>
+    <p><strong>Answer:</strong>  
+      An embedding model<sup><a href="#fn2">[2]</a></sup> converts text into dense vectors that encode meaning.
+      The quality of these embeddings largely determines how well the vector search
+      system can judge similarity between queries and documents. A poor model gives
+      noisy vectors and weak search results, even if the index is optimized.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q4. What are Approximate Nearest Neighbor (ANN) methods and why are they used?</h4>
+    <p><strong>Answer:</strong>  
+      ANN methods<sup><a href="#fn12">[12]</a></sup> such as HNSW or IVF do not check every vector in the index.
+      Instead, they use clever data structures to examine only a subset, making search
+      much faster with a small loss in recall. They are used when the dataset is large
+      and exact brute-force search would be too slow.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q5. Explain the trade-off controlled by <code>efSearch</code> in an HNSW index.</h4>
+    <p><strong>Answer:</strong>  
+      In HNSW<sup><a href="#fn16">[16]</a></sup>, <code>efSearch</code> controls how many candidates are considered during
+      the search. A larger value usually increases recall (better quality) but also
+      increases latency. A smaller value returns results faster but may miss some
+      of the best neighbors.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q6. Why is metadata important in a vector search system?</h4>
+    <p><strong>Answer:</strong>  
+      Metadata<sup><a href="#fn9">[9]</a></sup> adds structured information (product, language, date, etc.) that vectors
+      alone cannot express. It allows the system to apply filters (for example,
+      product = “X”, language = “en”) before or during similarity search, which
+      greatly improves relevance and enables access control and analytics.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q7. What is dimensionality reduction and when would you apply it in vector search?</h4>
+    <p><strong>Answer:</strong>  
+      Dimensionality reduction<sup><a href="#fn13">[13]</a></sup> techniques such as PCA reduce the number of dimensions
+      of vectors while trying to preserve most of the information. It is used when
+      the original vectors are very high-dimensional and memory or latency becomes
+      a bottleneck. However, too much reduction can harm accuracy.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q8. What are some metrics or KPIs you would track for a vector search system?</h4>
+    <p><strong>Answer:</strong>  
+      Common metrics include recall@k and precision@k (quality),
+      average latency and p95/p99 latency (performance), memory usage,
+      index build time, and error rates. User-facing metrics such as click-through
+      rate and satisfaction scores are also very useful.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q9. How would you debug a situation where vector search returns irrelevant results?</h4>
+    <p><strong>Answer:</strong>  
+      Steps include checking input data preparation, verifying that the embedding
+      model is appropriate and correctly used, confirming that query and document
+      vectors are normalized, reviewing metadata filters, comparing exact search
+      vs ANN search, and manually inspecting nearest neighbors for test queries.
+    </p>
+  </div>
+
+  <div class="qa">
+    <h4>Q10. What is brute-force search and when is it still acceptable to use it?</h4>
+    <p><strong>Answer:</strong>  
+      Brute-force search<sup><a href="#fn10">[10]</a></sup> compares the query vector with every vector in the collection.
+      It is exact and easy to implement but becomes slow for large datasets.
+      It is still acceptable for small collections, offline evaluation, or as a
+      baseline to measure the quality of approximate methods.
+    </p>
+  </div>
+
+
+  <!-- Footnotes / Glossary -->
+  <h2 id="footnotes">5. Technical Footnotes / Glossary</h2>
+
+  <div class="footnote" id="fn1">
+    <strong>[1] Vector Search:</strong>
+    A search method where both queries and items are represented as numerical
+    vectors and compared using a similarity or distance function.
+  </div>
+
+  <div class="footnote" id="fn2">
+    <strong>[2] Embedding Model:</strong>
+    A machine-learning model that transforms text (or other data) into dense
+    vectors so that semantically similar inputs are close together in vector space.
+  </div>
+
+  <div class="footnote" id="fn3">
+    <strong>[3] Cosine Similarity:</strong>
+    A measure of similarity between two vectors defined as the cosine of the angle
+    between them, ranging from −1 to 1. Widely used for comparing embeddings.
+  </div>
+
+  <div class="footnote" id="fn4">
+    <strong>[4] Vector Database:</strong>
+    A specialized database for storing, indexing and querying large collections
+    of vectors, often with support for metadata and approximate nearest neighbor search.
+  </div>
+
+  <div class="footnote" id="fn5">
+    <strong>[5] Retrieval-Augmented Generation (RAG):</strong>
+    An architecture where a language model retrieves relevant documents from a
+    database and uses them as context when generating an answer.
+  </div>
+
+  <div class="footnote" id="fn6">
+    <strong>[6] Sentence-Transformer:</strong>
+    A family of models based on transformers that produce sentence-level embeddings,
+    popularized by the <code>sentence-transformers</code> Python library.
+  </div>
+
+  <div class="footnote" id="fn7">
+    <strong>[7] Vector Search Process:</strong>
+    The end-to-end sequence of steps that prepares data, builds indices, performs
+    queries and returns ranked results in a vector-based search system.
+  </div>
+
+  <div class="footnote" id="fn8">
+    <strong>[8] Data Preparation:</strong>
+    Cleaning, normalizing, and structuring raw data (such as text documents) so
+    that they are ready for embedding and indexing.
+  </div>
+
+  <div class="footnote" id="fn9">
+    <strong>[9] Metadata:</strong>
+    Extra structured information attached to a document or vector, such as
+    source, product, language, creation date, or named entities.
+  </div>
+
+  <div class="footnote" id="fn10">
+    <strong>[10] Brute-Force Search:</strong>
+    An exact search method that compares a query with every vector in the
+    dataset, typically using a simple matrix multiplication or distance calculation.
+  </div>
+
+  <div class="footnote" id="fn11">
+    <strong>[11] Optimization Techniques:</strong>
+    Methods used to improve speed, memory efficiency and scalability of vector
+    search, including specialized indexes, caching, and system-level strategies.
+  </div>
+
+  <div class="footnote" id="fn12">
+    <strong>[12] Approximate Nearest Neighbor (ANN):</strong>
+    Algorithms and data structures that quickly find points that are close to
+    a query in high-dimensional space without scanning all points, trading a small
+    accuracy loss for large speed gains.
+  </div>
+
+  <div class="footnote" id="fn13">
+    <strong>[13] Dimensionality Reduction:</strong>
+    Techniques (such as PCA, autoencoders, or random projections) that reduce
+    the number of dimensions in a vector while trying to preserve important structure.
+  </div>
+
+  <div class="footnote" id="fn14">
+    <strong>[14] Caching:</strong>
+    Storing computed results (such as embeddings or search results) so that
+    repeated queries can be served faster without recomputation.
+  </div>
+
+  <div class="footnote" id="fn15">
+    <strong>[15] Sharding &amp; Replication:</strong>
+    Sharding divides data across multiple machines; replication keeps copies of
+    data on multiple machines. Both are used to scale and increase reliability.
+  </div>
+
+  <div class="footnote" id="fn16">
+    <strong>[16] HNSW (Hierarchical Navigable Small World):</strong>
+    A popular graph-based ANN index structure where nodes are connected in layers,
+    enabling fast approximate nearest neighbor search with tunable accuracy.
+  </div>
+
+</div>
+
+<footer>
+  &copy; ItTechGenie – Vector Search Tutorial
+</footer>
+
+</body>
+</html>
