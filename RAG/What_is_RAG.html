@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>What is RAG?</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+h1, h2 { color: #2c3e50; }
+pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+code { font-family: Consolas, monospace; }
+.box { padding: 15px; background: #eef; border-left: 5px solid #66f; margin: 15px 0; }
+</style>
+</head>
+<body>
+<h1>What is RAG (Retrieval-Augmented Generation)?</h1>
+
+<p><strong>RAG (Retrieval-Augmented Generation)</strong> is an AI technique where a generative model retrieves factual information from external sources before generating the final answer.</p>
+
+<div class="box">
+<b>Formula:</b> Search Engine + AI Answering = RAG
+</div>
+
+<h2>Why RAG is Needed</h2>
+<ul>
+<li>To avoid AI hallucinations</li>
+<li>To use private/custom documents</li>
+<li>To update knowledge instantly</li>
+<li>To improve accuracy</li>
+</ul>
+
+<h2>How RAG Works</h2>
+<pre><code>
+User Question
+      ↓
+1. Embed the Question
+      ↓
+2. Retrieve Similar Documents (Top-k)
+      ↓
+3. Combine Question + Context
+      ↓
+4. Generate Final Answer
+</code></pre>
+
+<h2>Python Example (ChromaDB)</h2>
+<pre><code>
+import chromadb
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+chroma = chromadb.Client()
+collection = chroma.create_collection(name="docs")
+
+documents = [
+    "Premium customers get refund within 24 hours.",
+    "Standard customers get refund within 3–5 business days."
+]
+embeddings = model.encode(documents).tolist()
+collection.add(documents=documents, embeddings=embeddings, ids=["1", "2"])
+
+query = "How fast premium customer gets refund?"
+query_embedding = model.encode([query]).tolist()
+results = collection.query(query_embeddings=query_embedding, n_results=1)
+
+print(results["documents"][0])
+</code></pre>
+
+<h2>When to Use RAG</h2>
+<ul>
+<li>Enterprise Q&A bots</li>
+<li>Internal policy search</li>
+<li>PDF-based chatbots</li>
+<li>Semantic product search</li>
+<li>Education assistants</li>
+</ul>
+
+</body>
+</html>
