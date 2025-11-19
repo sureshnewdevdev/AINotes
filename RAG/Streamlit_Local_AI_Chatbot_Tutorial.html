@@ -1,0 +1,532 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Streamlit Chatbot with Local AI Model (No API Key) | ItTechGenie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .topnav {
+            background-color: #04AA6D;
+            color: white;
+            padding: 12px 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .content {
+            max-width: 980px;
+            margin: 20px auto 40px auto;
+            background-color: white;
+            padding: 20px 25px 40px 25px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #333333;
+        }
+        h1 {
+            border-bottom: 2px solid #dddddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #eeeeee;
+        }
+        p {
+            line-height: 1.6;
+            color: #444444;
+        }
+        ul, ol {
+            margin-left: 25px;
+        }
+        .example-box {
+            border-left: 4px solid #04AA6D;
+            background-color: #e8f7f1;
+            padding: 12px 15px;
+            margin: 20px 0;
+        }
+        .example-box strong.label {
+            color: #047a4f;
+        }
+        .note-box {
+            border-left: 4px solid #ffcc00;
+            background-color: #fff8e5;
+            padding: 12px 15px;
+            margin: 20px 0;
+        }
+        .note-box strong.label {
+            color: #cc9900;
+        }
+        .code-block {
+            background-color: #f1f1f1;
+            border: 1px solid #dddddd;
+            padding: 10px;
+            overflow-x: auto;
+            margin: 10px 0 5px 0;
+        }
+        .code-block code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 14px;
+            white-space: pre;
+        }
+        .diagram-box {
+            background-color: #f9f9f9;
+            border: 1px dashed #bbbbbb;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .diagram-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+        }
+        .diagram-node {
+            padding: 10px 15px;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            min-width: 120px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .diagram-arrow {
+            font-size: 18px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+        }
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+        th {
+            background-color: #04AA6D;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+        td {
+            padding: 8px;
+            vertical-align: top;
+        }
+        .cheat-heading {
+            background-color: #f0f0f0;
+            padding: 6px 8px;
+            border-left: 4px solid #04AA6D;
+            margin-top: 15px;
+        }
+        .q {
+            font-weight: bold;
+        }
+        .a {
+            margin-bottom: 12px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        .tag-front {
+            background-color: #e0f7fa;
+            color: #006064;
+        }
+        .tag-ai {
+            background-color: #ede7f6;
+            color: #4527a0;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        ItTechGenie Streamlit for AI
+    </div>
+
+    <div class="content">
+        <h1>Streamlit Chatbot with Local AI Model (No API Key)</h1>
+        <p>
+            This tutorial shows how to build a <strong>real AI-powered chatbot</strong> using 
+            <span class="tag tag-front">Streamlit</span> and <span class="tag tag-ai">Hugging Face Transformers</span> 
+            without any API key. The model runs locally on your machine.
+        </p>
+
+        <div class="note-box">
+            <strong class="label">Goal:</strong>
+            Create a professional project folder, install dependencies, understand every line of the Python code,
+            and run a Streamlit chatbot that uses a real language model (<code>distilgpt2</code>).
+        </div>
+
+        <h2 class="section-title">1. Project Folder Structure (Professional Layout)</h2>
+        <p>
+            Use the following structure so that your chatbot project looks clean and professional:
+        </p>
+
+        <div class="code-block">
+<code>streamlit_chatbot_local_ai/
+├─ app.py                # Main Streamlit chatbot application
+├─ requirements.txt      # Python dependencies for this project
+├─ docs/                 # Documentation, notes, screenshots
+│  └─ README.md          # High-level project description
+└─ templates/            # (Optional) Future prompt templates or config files</code>
+        </div>
+
+        <h3>1.1 Script to Create Folder Structure (Windows PowerShell)</h3>
+        <p>Run this in PowerShell to generate the structure automatically:</p>
+        <div class="code-block">
+<code># Create main folder
+New-Item -ItemType Directory -Path "streamlit_chatbot_local_ai" | Out-Null
+
+# Go inside the folder
+Set-Location "streamlit_chatbot_local_ai"
+
+# Create sub-folders
+New-Item -ItemType Directory -Path "docs" | Out-Null
+New-Item -ItemType Directory -Path "templates" | Out-Null
+
+# Create empty files
+New-Item -ItemType File -Path "app.py" | Out-Null
+New-Item -ItemType File -Path "requirements.txt" | Out-Null
+New-Item -ItemType File -Path "docs\README.md" | Out-Null</code>
+        </div>
+
+        <h3>1.2 Script to Create Folder Structure (macOS / Linux Bash)</h3>
+        <p>Run this in a terminal (bash):</p>
+        <div class="code-block">
+<code>mkdir -p streamlit_chatbot_local_ai/docs
+mkdir -p streamlit_chatbot_local_ai/templates
+
+cd streamlit_chatbot_local_ai
+
+touch app.py
+touch requirements.txt
+touch docs/README.md</code>
+        </div>
+
+        <h3>1.3 Sample <code>requirements.txt</code></h3>
+        <p>Put this inside <code>requirements.txt</code>:</p>
+        <div class="code-block">
+<code>streamlit
+transformers
+torch</code>
+        </div>
+
+        <h2 class="section-title">2. How to Execute This Program</h2>
+
+        <h3>2.1 Create and Activate Virtual Environment (Recommended)</h3>
+        <p><strong>On Windows (PowerShell):</strong></p>
+        <div class="code-block">
+<code>cd path\to\streamlit_chatbot_local_ai
+
+python -m venv venv
+venv\Scripts\activate</code>
+        </div>
+
+        <p><strong>On macOS / Linux:</strong></p>
+        <div class="code-block">
+<code>cd /path/to/streamlit_chatbot_local_ai
+
+python3 -m venv venv
+source venv/bin/activate</code>
+        </div>
+
+        <h3>2.2 Install Dependencies</h3>
+        <div class="code-block">
+<code>pip install -r requirements.txt</code>
+        </div>
+
+        <h3>2.3 Run the Streamlit Chatbot App</h3>
+        <div class="code-block">
+<code>streamlit run app.py</code>
+        </div>
+        <p>
+            Your browser will open at a URL similar to <code>http://localhost:8501</code>.  
+            Type a message into the chat box and click <strong>Send</strong>. The local AI model will generate a reply.
+        </p>
+
+        <h2 class="section-title">3. High-Level Architecture (Chatbot + Streamlit + Local Model)</h2>
+        <div class="diagram-box">
+            <div class="diagram-row">
+                <div class="diagram-node">
+                    User<br>(Browser)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Streamlit App<br>(app.py UI)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Chat Logic<br>(Python code)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Local AI Model<br>(distilgpt2)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Response<br>(Generated text)
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">4. Full <code>app.py</code> Code with Line-by-Line Explanation</h2>
+        <p>
+            Below is the complete Python script for the chatbot.  
+            Every logical line has an explanation comment.
+        </p>
+
+        <div class="example-box">
+            <strong class="label">Full Code: <code>app.py</code></strong>
+            <div class="code-block">
+<code>import streamlit as st                          # Import Streamlit for building the web app
+from transformers import pipeline                 # Import Hugging Face pipeline for easy model loading
+
+# -----------------------------
+# 1. Page configuration
+# -----------------------------
+st.set_page_config(                               # Configure basic page settings (title, icon)
+    page_title="Local AI Chatbot",                # Title shown in browser tab
+    page_icon="💬"                                # Small emoji icon shown in tab
+)
+
+st.title("💬 Streamlit Chatbot with Local AI Model (No API Key)")  # Main heading displayed in the app
+
+
+# -----------------------------
+# 2. Load a real AI model (no API key)
+# -----------------------------
+@st.cache_resource                                # Cache the model so it is loaded only once
+def load_model():
+    # Load a small text-generation model using Hugging Face transformers.
+    # This is a REAL AI model (distilgpt2) running locally.
+    # It will download once and then be reused from cache.
+    generator = pipeline(                         # Create a text-generation pipeline
+        "text-generation",                        # Task type: generate text
+        model="distilgpt2",                       # Small GPT-2 variant, good for demos
+        max_new_tokens=120                        # Maximum number of new tokens to generate
+    )
+    return generator                              # Return the configured pipeline object
+
+
+generator = load_model()                          # Actually load (or retrieve cached) model
+
+
+# -----------------------------
+# 3. Prompt building and reply generation
+# -----------------------------
+def build_prompt_from_history(history, user_message):
+    # Build a simple chat-style prompt string from previous messages + new user message.
+    # history: list of {"role": "user"/"bot", "text": "..."}
+    # user_message: latest user input string
+    lines = []                                    # Start with an empty list of lines
+
+    for msg in history:                           # Loop through all previous messages
+        if msg["role"] == "user":                 # If the message was from user
+            lines.append(f"User: {msg['text']}")  # Format as 'User: ...'
+        else:                                     # Otherwise, it's from the bot
+            lines.append(f"Bot: {msg['text']}")   # Format as 'Bot: ...'
+
+    lines.append(f"User: {user_message}")         # Add the latest user message
+    lines.append("Bot:")                          # Ask model to continue as the bot
+
+    return "\n".join(lines)                      # Join all lines into a single prompt string
+
+
+def generate_bot_reply(history, user_message, temperature=0.7):
+    # Call the real AI model (distilgpt2) to generate a reply based on conversation history.
+    prompt = build_prompt_from_history(history, user_message)  # Build prompt from history + latest user message
+
+    outputs = generator(                         # Call the text-generation pipeline
+        prompt,                                  # Prompt text to continue from
+        do_sample=True,                          # Enable sampling for more diverse outputs
+        temperature=temperature,                 # Controls randomness (higher = more creative)
+        max_new_tokens=80,                       # Limit length of generated reply
+        num_return_sequences=1                   # We only need one reply sequence
+    )
+
+    full_text = outputs[0]["generated_text"]     # Extract the generated text from the first (and only) result
+
+    # Try to keep only the text after the last "Bot:" to avoid repeating the prompt
+    if "Bot:" in full_text:                      # Check if "Bot:" appears in the generated text
+        bot_part = full_text.split("Bot:")[-1].strip()  # Take the part after the last "Bot:"
+    else:
+        bot_part = full_text                     # If no "Bot:", use full text as fallback
+
+    # Sometimes the model continues with extra "User:" or "Bot:", cut at those markers if present
+    for stop_token in ["User:", "Bot:"]:         # Look for markers indicating new turns
+        if stop_token in bot_part:
+            bot_part = bot_part.split(stop_token)[0].strip()  # Keep only text before the marker
+
+    # If nothing meaningful remains, provide a safe fallback reply
+    if len(bot_part) == 0:
+        bot_part = "Sorry, I couldn't think of a good answer this time. 😅"
+
+    return bot_part                              # Return the cleaned-up bot reply
+
+
+# -----------------------------
+# 4. Session state initialization
+# -----------------------------
+if "messages" not in st.session_state:           # If this is the first time in this session
+    st.session_state["messages"] = [             # Initialize chat history list
+        {
+            "role": "bot",                       # Mark as bot message
+            "text": "Hi, I'm a local AI chatbot running without any API key. How can I help you today?"
+        }
+    ]
+
+if "temperature" not in st.session_state:        # Store temperature in session_state as well
+    st.session_state["temperature"] = 0.7        # Default creativity level
+
+
+# -----------------------------
+# 5. Sidebar: settings and actions
+# -----------------------------
+st.sidebar.header("⚙️ Model Settings")           # Sidebar heading
+st.sidebar.write("These settings control how creative the AI is.")  # Helper text
+
+temperature = st.sidebar.slider(                 # Slider widget for temperature
+    "Temperature (higher = more creative)",      # Label shown to user
+    min_value=0.1,                               # Minimum value of slider
+    max_value=1.5,                               # Maximum value of slider
+    value=st.session_state["temperature"],       # Initial value (from session state)
+    step=0.1                                     # Step size when moving slider
+)
+st.session_state["temperature"] = temperature    # Save slider value back to session state
+
+with st.sidebar.expander("ℹ️ About this demo"):  # Collapsible info box in sidebar
+    st.write(
+        "- Model: distilgpt2 (Hugging Face transformers)  \n"
+        "- Runs locally, no API key  \n"
+        "- Intended for learning Streamlit + AI integration"
+    )
+
+if st.sidebar.button("🧹 Clear Chat History"):   # Button to clear chat
+    st.session_state["messages"] = [             # Reset messages to a single welcome message
+        {
+            "role": "bot",
+            "text": "Chat cleared. Let's start again! 🧠"
+        }
+    ]    
+    st.experimental_rerun()                      # Rerun to refresh UI immediately
+
+
+# -----------------------------
+# 6. Display the conversation
+# -----------------------------
+st.subheader("Conversation")                     # Subheading above chat area
+
+for msg in st.session_state["messages"]:         # Loop through all messages in history
+    if msg["role"] == "user":                    # Style user messages
+        st.markdown(
+            f"<div style='background-color:#e3f2fd;"
+            f"padding:8px;border-radius:8px;margin-bottom:4px;'>"
+            f"<b>You:</b> {msg['text']}</div>",
+            unsafe_allow_html=True               # Allow HTML for colored chat bubbles
+        )
+    else:                                        # Style bot messages
+        st.markdown(
+            f"<div style='background-color:#ede7f6;"
+            f"padding:8px;border-radius:8px;margin-bottom:4px;'>"
+            f"<b>Bot:</b> {msg['text']}</div>",
+            unsafe_allow_html=True
+        )
+
+
+# -----------------------------
+# 7. Chat input form
+# -----------------------------
+with st.form("chat_form", clear_on_submit=True): # Create a form for message input
+    user_input = st.text_input("Type your message", "")  # Text field for user message
+    submitted = st.form_submit_button("Send")    # Submit button for the form
+
+if submitted and user_input.strip() != "":       # Only handle submission if text is not empty
+    st.session_state["messages"].append(         # Add user message to history
+        {"role": "user", "text": user_input}
+    )
+
+    with st.spinner("Thinking..."):              # Show spinner while model is generating
+        reply = generate_bot_reply(              # Call function to get bot reply
+            history=st.session_state["messages"],
+            user_message=user_input,
+            temperature=st.session_state["temperature"],
+        )
+
+    st.session_state["messages"].append(         # Add bot reply to history
+        {"role": "bot", "text": reply}
+    )
+
+    st.experimental_rerun()                      # Rerun the app to display the new messages</code>
+            </div>
+        </div>
+
+        <h2 class="section-title">5. Quick Reference / Cheat Sheet</h2>
+        <div class="cheat-heading">Important Concepts in This Tutorial</div>
+        <table>
+            <tr>
+                <th>Concept</th>
+                <th>Description</th>
+                <th>Where Used</th>
+            </tr>
+            <tr>
+                <td><code>st.session_state</code></td>
+                <td>Stores persistent data (chat history, settings) across reruns.</td>
+                <td>Chat messages list and temperature value.</td>
+            </tr>
+            <tr>
+                <td><code>@st.cache_resource</code></td>
+                <td>Caches heavy objects (like models) so they are loaded only once.</td>
+                <td><code>load_model()</code> function.</td>
+            </tr>
+            <tr>
+                <td><code>pipeline("text-generation")</code></td>
+                <td>High-level API to use text generation models.</td>
+                <td><code>generator = pipeline(...)</code></td>
+            </tr>
+            <tr>
+                <td>Prompt building</td>
+                <td>Combine history + new user message into one string.</td>
+                <td><code>build_prompt_from_history()</code></td>
+            </tr>
+            <tr>
+                <td>Chat bubbles</td>
+                <td>Use <code>st.markdown</code> with HTML to style messages.</td>
+                <td>Loop rendering messages in Section 6.</td>
+            </tr>
+        </table>
+
+        <h2 class="section-title">6. Mini Exercises</h2>
+        <ol>
+            <li>
+                <strong>Add a timestamp</strong>:  
+                Extend each message dictionary with a <code>time</code> field and display it in the chat bubble.
+            </li>
+            <li>
+                <strong>Custom system prompt</strong>:  
+                Add a text area where you can type an initial system instruction (for example, "You are a helpful tutor"),
+                and include it at the start of the prompt.
+            </li>
+            <li>
+                <strong>Message limit</strong>:  
+                Keep only the last 20 messages in <code>st.session_state["messages"]</code> to prevent very long prompts.
+            </li>
+            <li>
+                <strong>Save chat</strong>:  
+                Add a button that writes the conversation to a text file in the <code>docs/</code> folder.
+            </li>
+        </ol>
+
+        <p>
+            You now have a complete, professional-style project that uses Streamlit and a real local AI model 
+            to build a chatbot interface. This same pattern can later be extended to call 
+            larger models, RAG backends, or cloud LLM APIs with minimal changes.
+        </p>
+    </div>
+</body>
+</html>

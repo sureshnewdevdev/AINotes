@@ -1,0 +1,733 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Introduction to Streamlit for AI Apps | ItTechGenie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .topnav {
+            background-color: #04AA6D;
+            color: white;
+            padding: 12px 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .content {
+            max-width: 980px;
+            margin: 20px auto 40px auto;
+            background-color: white;
+            padding: 20px 25px 40px 25px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #333333;
+        }
+        h1 {
+            border-bottom: 2px solid #dddddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #eeeeee;
+        }
+        p {
+            line-height: 1.6;
+            color: #444444;
+        }
+        ul, ol {
+            margin-left: 25px;
+        }
+        .example-box {
+            border-left: 4px solid #04AA6D;
+            background-color: #e8f7f1;
+            padding: 12px 15px;
+            margin: 20px 0;
+        }
+        .example-box strong.label {
+            color: #047a4f;
+        }
+        .note-box {
+            border-left: 4px solid #ffcc00;
+            background-color: #fff8e5;
+            padding: 12px 15px;
+            margin: 20px 0;
+        }
+        .note-box strong.label {
+            color: #cc9900;
+        }
+        .code-block {
+            background-color: #f1f1f1;
+            border: 1px solid #dddddd;
+            padding: 10px;
+            overflow-x: auto;
+            margin: 10px 0 5px 0;
+        }
+        .code-block code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 14px;
+            white-space: pre;
+        }
+        .diagram-box {
+            background-color: #f9f9f9;
+            border: 1px dashed #bbbbbb;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .diagram-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+        }
+        .diagram-node {
+            padding: 10px 15px;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            min-width: 120px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .diagram-arrow {
+            font-size: 18px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+        }
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+        th {
+            background-color: #04AA6D;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+        td {
+            padding: 8px;
+            vertical-align: top;
+        }
+        .highlight {
+            background-color: #ffffcc;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        .tag-front {
+            background-color: #e0f7fa;
+            color: #006064;
+        }
+        .tag-ai {
+            background-color: #ede7f6;
+            color: #4527a0;
+        }
+        .tag-code {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+        .cheat-heading {
+            background-color: #f0f0f0;
+            padding: 6px 8px;
+            border-left: 4px solid #04AA6D;
+            margin-top: 15px;
+        }
+        .q {
+            font-weight: bold;
+        }
+        .a {
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        ItTechGenie Streamlit for AI
+    </div>
+
+    <div class="content">
+        <h1>Introduction to Streamlit for AI Apps</h1>
+        <p>
+            This page introduces <strong>Streamlit</strong> as a simple, powerful way to build 
+            <span class="tag tag-front">Frontend</span> user interfaces for 
+            <span class="tag tag-ai">AI &amp; LLM</span> (Large Language Model) projects.  
+            You will learn what Streamlit is, how it fits into an AI architecture, and how to create your 
+            first AI-flavoured web app using pure Python.
+        </p>
+
+        <div class="note-box">
+            <strong class="label">Note:</strong> 
+            A <strong>frontend</strong> is the part of an application that the user sees and interacts with (buttons, text boxes, results).  
+            A <strong>backend</strong> is the part that runs the logic: calling models, databases, or APIs.
+        </div>
+
+        <!-- 2. What is {{TOPIC_NAME}}? -->
+        <h2 class="section-title">What is Streamlit for AI Apps?</h2>
+        <p>
+            <strong>Streamlit</strong> is an open-source Python framework that lets you create interactive web apps 
+            using only Python scripts. You do not need HTML, CSS, or JavaScript to get started.  
+            For AI projects, Streamlit becomes the <strong>visual layer</strong> where users can:
+        </p>
+        <ul>
+            <li>Type prompts into a text box and send them to an LLM.</li>
+            <li>Upload files (PDF, CSV, text) and ask questions about them.</li>
+            <li>View charts, tables, and model predictions in a simple web page.</li>
+        </ul>
+        <p>
+            When we say <em>“Streamlit for AI apps”</em>, we mean using Streamlit as the 
+            <strong>front-end UI for AI/ML models</strong> such as chatbots, RAG (Retrieval-Augmented Generation) systems, 
+            summarizers, sentiment analysis models, and more.
+        </p>
+
+        <div class="example-box">
+            <strong class="label">Example AI Use Cases with Streamlit:</strong>
+            <ul>
+                <li>Chatbot interface on top of GPT-like models.</li>
+                <li>“Ask your PDF” app using RAG with a vector database.</li>
+                <li>Data analysis dashboard with charts and natural language explanations.</li>
+                <li>Image captioning app where users upload images and see captions.</li>
+            </ul>
+        </div>
+
+        <!-- 3. Why, When, Where -->
+        <h2 class="section-title">Why, When, and Where to Use Streamlit for AI Apps</h2>
+
+        <h3>Why Streamlit is Important for AI Developers</h3>
+        <ul>
+            <li><strong>Fast prototyping:</strong> Build a working UI in minutes, not days.</li>
+            <li><strong>Pure Python:</strong> Use the same language you use for AI/ML code.</li>
+            <li><strong>Interactive:</strong> Sliders, text inputs, file uploads, and charts are ready-to-use widgets.</li>
+            <li><strong>Shareable:</strong> Deploy to the cloud and share a URL with users or teammates.</li>
+        </ul>
+
+        <h3>When to Use Streamlit</h3>
+        <ul>
+            <li>You want a simple UI for your AI notebook or script.</li>
+            <li>You need to demo an AI model to stakeholders quickly.</li>
+            <li>You are building internal tools (e.g., labeling, analysis, experimentation).</li>
+            <li>You want a lightweight “control panel” for AI pipelines or RAG flows.</li>
+        </ul>
+
+        <h3>Where Streamlit Sits in an AI Architecture</h3>
+        <p>
+            Streamlit usually sits at the <strong>front</strong>, taking user input and sending it to an 
+            AI model (local or cloud) through an <strong>API</strong> (Application Programming Interface).
+        </p>
+
+        <div class="diagram-box">
+            <strong>Architecture Diagram: AI App with Streamlit</strong>
+            <div class="diagram-row" style="margin-top:10px;">
+                <div class="diagram-node">
+                    User<br>
+                    (Prompt / File / Settings)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Streamlit UI<br>
+                    (Frontend)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Backend / API<br>
+                    (FastAPI / Flask / Direct SDK)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    AI / LLM Model<br>
+                    (Cloud or Local)
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-node">
+                    Response<br>
+                    (Answer / Summary / Prediction)
+                </div>
+            </div>
+        </div>
+
+        <h3>Streamlit vs Flask vs Django vs Gradio vs FastAPI (Quick View)</h3>
+        <table>
+            <tr>
+                <th>Tool</th>
+                <th>Type</th>
+                <th>Good For</th>
+            </tr>
+            <tr>
+                <td><strong>Streamlit</strong></td>
+                <td>UI framework (Python scripts to web apps)</td>
+                <td>Fast AI dashboards, experiments, demos</td>
+            </tr>
+            <tr>
+                <td><strong>Flask</strong></td>
+                <td>Web framework</td>
+                <td>Simple APIs and basic websites</td>
+            </tr>
+            <tr>
+                <td><strong>Django</strong></td>
+                <td>Full-stack web framework</td>
+                <td>Large, complex web applications</td>
+            </tr>
+            <tr>
+                <td><strong>Gradio</strong></td>
+                <td>UI toolkit for ML</td>
+                <td>Quick ML demo interfaces, especially for models</td>
+            </tr>
+            <tr>
+                <td><strong>FastAPI</strong></td>
+                <td>High-performance API framework</td>
+                <td>Production-ready APIs for AI models</td>
+            </tr>
+        </table>
+
+        <!-- 4. Prerequisites -->
+        <h2 class="section-title">Prerequisites</h2>
+        <p>You will be comfortable with this page if you:</p>
+        <ul>
+            <li>Know basic <strong>Python</strong> (functions, variables, imports).</li>
+            <li>Can install packages using <code>pip</code>.</li>
+            <li>Understand basic AI terms like <em>model</em>, <em>prompt</em>, and <em>response</em>.</li>
+        </ul>
+
+        <h3>Installation (Python &amp; Streamlit)</h3>
+        <div class="code-block">
+<code># 1. (Optional) Create and activate a virtual environment
+# On Windows (PowerShell):
+python -m venv venv
+venv\Scriptsctivate
+
+# On macOS / Linux (bash):
+python3 -m venv venv
+source venv/bin/activate
+
+# 2. Install Streamlit
+pip install streamlit</code>
+        </div>
+        <ul>
+            <li><strong>Virtual environment:</strong> Isolated Python environment for your project.</li>
+            <li><strong>pip:</strong> Python package manager used to install libraries.</li>
+        </ul>
+
+        <!-- 5. Step-by-Step Tutorial -->
+        <h2 class="section-title">Step-by-Step: Your First Streamlit AI-Flavoured App</h2>
+
+        <h3>Step 1: Create a Project Folder</h3>
+        <p>
+            Create a folder for your AI project, for example <code>streamlit_ai_intro</code>.  
+            Inside it, create a file called <code>app.py</code>.
+        </p>
+
+        <h3>Step 2: A Simple &quot;Hello, Streamlit&quot; App</h3>
+        <div class="example-box">
+            <strong class="label">Example 1: Basic Streamlit Page</strong>
+            <div class="code-block">
+<code>import streamlit as st
+
+st.title("Hello, Streamlit AI World 👋")
+st.write("This is my very first Streamlit app for AI experiments.")</code>
+            </div>
+            <ul>
+                <li><code>import streamlit as st</code> imports the Streamlit library.</li>
+                <li><code>st.title()</code> adds a big page title.</li>
+                <li><code>st.write()</code> prints text or objects in a flexible way.</li>
+            </ul>
+        </div>
+
+        <h3>Step 3: Run the App in Your Browser</h3>
+        <p>From the project folder, run:</p>
+        <div class="code-block">
+<code>streamlit run app.py</code>
+        </div>
+        <p>
+            Streamlit will start a local web server and open a browser window at a URL like 
+            <code>http://localhost:8501</code>. This is how you view and interact with your app.
+        </p>
+
+        <h3>Step 4: Add a Prompt Box for AI</h3>
+        <div class="example-box">
+            <strong class="label">Example 2: Prompt Input for an AI Model</strong>
+            <div class="code-block">
+<code>import streamlit as st
+
+st.title("Simple AI Prompt Console")
+
+prompt = st.text_input("Enter your prompt for the AI model")
+
+if st.button("Send to AI"):
+    st.write("You entered:")
+    st.write(prompt)</code>
+            </div>
+            <ul>
+                <li><code>st.text_input()</code> creates a one-line text box.</li>
+                <li><code>st.button()</code> creates a clickable button.</li>
+                <li>The <code>if</code> block runs when the button is clicked.</li>
+            </ul>
+        </div>
+
+        <h3>Step 5: Simulate an AI Model (Fake Response)</h3>
+        <p>
+            To understand the flow, we can simulate an AI model with a simple Python function.  
+            Later, you will replace this with a real LLM or API call.
+        </p>
+
+        <div class="example-box">
+            <strong class="label">Example 3: Fake LLM Response in Streamlit</strong>
+            <div class="code-block">
+<code>import streamlit as st
+
+def fake_llm_response(prompt: str) -&gt; str:
+    # This simulates an AI model by returning a simple message
+    return f"🤖 AI says: I received your prompt: '{prompt}'"
+
+st.title("AI Prompt Demo (Fake LLM)")
+
+prompt = st.text_input("Enter a prompt")
+
+if st.button("Ask AI"):
+    if prompt.strip() == "":
+        st.warning("Please type something before clicking the button.")
+    else:
+        response = fake_llm_response(prompt)
+        st.success("AI Response:")
+        st.write(response)</code>
+            </div>
+            <ul>
+                <li><code>fake_llm_response()</code> is a placeholder for your real AI model.</li>
+                <li><code>st.warning()</code> and <code>st.success()</code> show colored message boxes.</li>
+                <li>This pattern (input → button → call model → show response) is core to AI apps.</li>
+            </ul>
+        </div>
+
+        <h3>Step 6: Basic Layout with Sidebar for AI Settings</h3>
+        <p>
+            Most AI apps have a main area (chat, answer) and a sidebar (model settings, instructions).  
+            You can create this structure with <code>st.sidebar</code>.
+        </p>
+
+        <div class="example-box">
+            <strong class="label">Example 4: Layout for an AI Chat Page</strong>
+            <div class="code-block">
+<code>import streamlit as st
+
+st.title("Intro AI Chat Layout")
+
+# Sidebar for settings
+st.sidebar.header("Model Settings")
+temperature = st.sidebar.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
+max_tokens = st.sidebar.slider("Max Tokens", 16, 512, 128, 16)
+
+st.sidebar.write("Temperature controls creativity.")
+st.sidebar.write("Max tokens controls response length.")
+
+# Main area
+st.header("Chat with AI (UI only)")
+user_message = st.text_input("You:", "")
+
+if st.button("Send"):
+    # Here you would call your real LLM with temperature and max_tokens
+    st.write("Placeholder AI response goes here...")</code>
+            </div>
+            <ul>
+                <li><code>st.sidebar</code> places widgets in a side panel.</li>
+                <li><code>st.slider()</code> allows users to pick numeric values.</li>
+                <li>This design prepares your app for real model integration later.</li>
+            </ul>
+        </div>
+
+        <!-- 6. Real-World AI Use Case -->
+        <h2 class="section-title">Real-World AI Use Case: Text Summarizer UI</h2>
+        <p>
+            A common AI application is a <strong>text summarizer</strong>, which takes a long article or paragraph 
+            and produces a short summary. Streamlit can act as the UI where users paste text and see the summary.
+        </p>
+
+        <h3>Mini End-to-End Example: Summarizer Mock</h3>
+        <div class="example-box">
+            <strong class="label">Example 5: Text Summarizer Interface (with Fake Model)</strong>
+            <div class="code-block">
+<code>import streamlit as st
+
+def fake_summarizer(text: str) -&gt; str:
+    # In a real app, you would call an LLM or summarization model here.
+    # For now, we just pretend to summarize by taking first 150 characters.
+    if len(text) &lt;= 150:
+        return text
+    return text[:150] + "... [summary truncated for demo]"
+
+st.title("AI Text Summarizer (Mock)")
+
+st.write("Paste a paragraph or article below and click **Summarize**.")
+
+input_text = st.text_area("Input Text", height=200)
+
+if st.button("Summarize"):
+    if input_text.strip() == "":
+        st.error("Please paste some text to summarize.")
+    else:
+        with st.spinner("Summarizing..."):
+            summary = fake_summarizer(input_text)
+        st.subheader("Summary")
+        st.write(summary)</code>
+            </div>
+            <ul>
+                <li><code>st.text_area()</code> allows multi-line input for long text.</li>
+                <li><code>st.spinner()</code> shows a spinner during long-running tasks.</li>
+                <li><code>fake_summarizer()</code> mimics an AI model; replace with a real one later.</li>
+            </ul>
+        </div>
+
+        <!-- 7. Diagrams / Conceptual Views -->
+        <h2 class="section-title">Conceptual View: Request → Streamlit → LLM → Response</h2>
+        <p>
+            The interaction pattern for most AI apps using Streamlit looks like this:
+        </p>
+        <div class="diagram-box">
+            <ol>
+                <li>User opens the Streamlit app in the browser.</li>
+                <li>User enters a prompt or uploads a file.</li>
+                <li>Streamlit sends this input to an AI model (direct SDK or via an API).</li>
+                <li>The AI model processes the input and returns a result.</li>
+                <li>Streamlit displays the result with formatting (markdown, tables, charts, etc.).</li>
+            </ol>
+        </div>
+
+        <!-- 8. Common Mistakes and Best Practices -->
+        <h2 class="section-title">Common Mistakes and Best Practices</h2>
+
+        <h3>Common Mistakes</h3>
+        <ul>
+            <li>Writing all logic in one very long <code>app.py</code> file without structure.</li>
+            <li>Calling heavy model loading code on every button click instead of caching.</li>
+            <li>Not handling empty input (e.g., user clicks button without typing a prompt).</li>
+            <li>Hardcoding API keys directly in the source file instead of using secrets.</li>
+            <li>Ignoring Streamlit rerun behavior and getting confused when variables reset.</li>
+            <li>Not providing feedback (spinner, messages) during long-running AI calls.</li>
+        </ul>
+
+        <h3>Best Practices for Streamlit AI Apps</h3>
+        <ul>
+            <li>Start with a simple UI (one prompt box, one button, one output area).</li>
+            <li>Use helper functions like <code>fake_llm_response()</code> while designing the UI.</li>
+            <li>Use <code>st.sidebar</code> for model settings (temperature, max tokens, etc.).</li>
+            <li>Add basic validation and clear error messages for user inputs.</li>
+            <li>Use <code>st.cache_data</code> or <code>st.cache_resource</code> for expensive operations (covered in later modules).</li>
+            <li>Plan the layout: main content area for chat/output, sidebars for controls and help text.</li>
+        </ul>
+
+        <!-- 9. Quick Reference / Cheat Sheet -->
+        <h2 class="section-title">Quick Reference / Cheat Sheet</h2>
+
+        <div class="cheat-heading">
+            Key Streamlit Functions Used in This Page
+        </div>
+        <table>
+            <tr>
+                <th>Function</th>
+                <th>Purpose</th>
+                <th>Example</th>
+            </tr>
+            <tr>
+                <td><code>st.title()</code></td>
+                <td>Big page title</td>
+                <td><code>st.title("My AI App")</code></td>
+            </tr>
+            <tr>
+                <td><code>st.header()</code></td>
+                <td>Section heading</td>
+                <td><code>st.header("Chat with AI")</code></td>
+            </tr>
+            <tr>
+                <td><code>st.write()</code></td>
+                <td>Display text, data, or objects</td>
+                <td><code>st.write("Result:", result)</code></td>
+            </tr>
+            <tr>
+                <td><code>st.text_input()</code></td>
+                <td>Single-line text box</td>
+                <td><code>prompt = st.text_input("Enter prompt")</code></td>
+            </tr>
+            <tr>
+                <td><code>st.text_area()</code></td>
+                <td>Multi-line text box</td>
+                <td><code>text = st.text_area("Input Text")</code></td>
+            </tr>
+            <tr>
+                <td><code>st.button()</code></td>
+                <td>Clickable button</td>
+                <td><code>if st.button("Go"): ...</code></td>
+            </tr>
+            <tr>
+                <td><code>st.sidebar.slider()</code></td>
+                <td>Slider in sidebar</td>
+                <td><code>temperature = st.sidebar.slider(...)</code></td>
+            </tr>
+            <tr>
+                <td><code>st.warning()</code>, <code>st.error()</code>, <code>st.success()</code></td>
+                <td>Status messages</td>
+                <td><code>st.error("Something went wrong")</code></td>
+            </tr>
+            <tr>
+                <td><code>st.spinner()</code></td>
+                <td>Show spinner during a task</td>
+                <td><code>with st.spinner("Loading..."): ...</code></td>
+            </tr>
+        </table>
+
+        <!-- 10. Interview Questions and Answers -->
+        <h2 class="section-title">Interview Questions and Answers</h2>
+
+        <div class="a">
+            <span class="q">1. What is Streamlit and why is it useful for AI applications?</span><br>
+            <span class="a">
+                Streamlit is a Python framework that turns scripts into interactive web apps. 
+                It is useful for AI because you can quickly build user interfaces for models 
+                (chatbots, summarizers, dashboards) using only Python, without front-end 
+                technologies like HTML, CSS, or JavaScript.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">2. How does Streamlit fit into an AI system architecture?</span><br>
+            <span class="a">
+                Streamlit typically acts as the front-end layer. It collects user inputs 
+                (prompts, files, settings), sends them to a backend or directly to an AI model, 
+                receives the model output, and renders it as text, tables, or charts in the browser.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">3. Compare Streamlit with Flask or Django for AI projects.</span><br>
+            <span class="a">
+                Flask and Django are general-purpose web frameworks aimed at building full websites 
+                and APIs. Streamlit focuses on building data and AI apps quickly with Python. 
+                For rapid prototypes, dashboards, and internal tools, Streamlit is faster. 
+                For large multi-page production systems with complex routing and authentication, 
+                Flask or Django may be more appropriate.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">4. What command is used to run a Streamlit app?</span><br>
+            <span class="a">
+                You use <code>streamlit run app.py</code> in the terminal, where <code>app.py</code> is your script.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">5. How would you design a simple Streamlit UI for a chatbot?</span><br>
+            <span class="a">
+                I would create a text input for the user message, a button to send the message, 
+                and an area to display the AI response. Optionally, I would add a sidebar for 
+                model parameters like temperature and maximum tokens. Internally, clicking the 
+                button would call the chatbot model and update the displayed conversation.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">6. Why might you simulate an AI model with a fake function when starting a project?</span><br>
+            <span class="a">
+                Simulating the model with a fake function allows you to design and test the UI 
+                without waiting for a real model or API. It speeds up development and lets you 
+                validate the user flow before integrating the real AI backend.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">7. What are common widgets used in Streamlit AI apps?</span><br>
+            <span class="a">
+                Common widgets include <code>st.text_input</code> and <code>st.text_area</code> for prompts, 
+                <code>st.button</code> for actions, <code>st.sidebar.slider</code> for tuning parameters, and 
+                status components like <code>st.warning</code>, <code>st.error</code>, and <code>st.success</code>.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">8. What is the role of the sidebar in a Streamlit AI app?</span><br>
+            <span class="a">
+                The sidebar is often used for settings and controls that users do not need to see 
+                in the main area all the time, such as model parameters, configuration toggles, 
+                or help text, keeping the main UI focused on the conversation or results.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">9. How would you explain Streamlit rerun behavior to a new team member?</span><br>
+            <span class="a">
+                Streamlit reruns the entire script from top to bottom every time the user interacts 
+                with a widget. The UI state is driven by widget values and any stored state. 
+                This is different from traditional web frameworks where you manually handle routes 
+                and callbacks, but it makes the mental model simple: “script is re-executed”.
+            </span>
+        </div>
+
+        <div class="a">
+            <span class="q">10. In an AI demo, why is visual feedback (spinners, status messages) important?</span><br>
+            <span class="a">
+                AI calls can take time due to model size, network latency, or long prompts. 
+                Visual feedback using spinners and status messages reassures users that the 
+                system is working and prevents them from repeatedly clicking or closing the page.
+            </span>
+        </div>
+
+        <!-- 11. Mini Exercises / Practice Tasks -->
+        <h2 class="section-title">Mini Exercises / Practice Tasks</h2>
+        <ol>
+            <li>
+                <strong>Simple Prompt Echo App</strong><br>
+                Create a Streamlit app with a text input and a button. When the user clicks the button, 
+                display the text they typed under a heading called &quot;You said:&quot;.
+            </li>
+            <li>
+                <strong>Fake Chatbot Screen</strong><br>
+                Build a page with a title &quot;My First AI Chat&quot;, one text input for the user, 
+                and a fake response function that returns a playful answer. Show both the user message 
+                and the fake AI response in the main area.
+            </li>
+            <li>
+                <strong>Summarizer UI Layout</strong><br>
+                Create a layout with a text area for long input and a button named &quot;Summarize&quot;. 
+                For now, simply display the first 100 characters of the input as the &quot;summary&quot;.
+            </li>
+            <li>
+                <strong>Sidebar Model Settings</strong><br>
+                Add a sidebar with a slider for &quot;Creativity&quot; and a select box for &quot;Response Style&quot; 
+                (e.g., &quot;Formal&quot;, &quot;Casual&quot;). When the user clicks a button, show the selected settings 
+                in the main area.
+            </li>
+            <li>
+                <strong>AI App Welcome Dashboard</strong><br>
+                Create a page that has a title, a short description of your future AI tools, 
+                and three subheadings: &quot;Chatbot&quot;, &quot;Document Q&amp;A&quot;, and &quot;Analytics&quot;. 
+                Under each, write a one-sentence plan for what you want that feature to do.
+            </li>
+        </ol>
+
+        <!-- Optional: Course Roadmap Overview -->
+        <h2 class="section-title">What Comes Next: Streamlit for AI Course Roadmap</h2>
+        <p>
+            This introduction is the first step. In the full Streamlit-based AI course, you will gradually build:
+        </p>
+        <ul>
+            <li>Environment setup and first apps for AI experiments.</li>
+            <li>Core Streamlit widgets and layouts for chat and dashboards.</li>
+            <li>Stateful chat UIs with <code>st.session_state</code>.</li>
+            <li>RAG frontends, multi-page apps, and AI tools suites.</li>
+            <li>API integrations with OpenAI or local models.</li>
+            <li>Deployment of AI apps to the cloud.</li>
+        </ul>
+        <p>
+            You can now move to the next tutorial pages to explore these topics in more detail and 
+            start building your own AI assistant portal with Streamlit.
+        </p>
+    </div>
+</body>
+</html>

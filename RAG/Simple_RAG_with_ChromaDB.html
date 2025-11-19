@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple RAG Example with ChromaDB</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.7; background:#fafafa; }
+h1, h2, h3 { color:#1b3c74; }
+pre { background:#f4f4f4; padding:12px; border-radius:6px; overflow:auto; }
+code { font-family: Consolas, monospace; }
+.box { padding:12px; background:#e8f1ff; border-left:5px solid #3478f6; margin:16px 0; }
+.toc a { text-decoration:none; color:#1b3c74; }
+.toc li { margin:4px 0; }
+</style>
+</head>
+<body>
+<h1>Simple RAG Example using ChromaDB</h1>
+
+<div class="box">
+<b>Goal:</b> Build a very small Retrieval-Augmented Generation (RAG) demo using:
+<ul>
+<li><b>ChromaDB</b> as the vector database</li>
+<li><b>sentence-transformers</b> for embeddings</li>
+<li>A simple Python function to build the RAG prompt for any LLM</li>
+</ul>
+</div>
+
+<h2 id="toc">Table of Contents</h2>
+<ul class="toc">
+  <li><a href="#step1">1. Install required libraries</a></li>
+  <li><a href="#step2">2. Create a tiny knowledge base in ChromaDB</a></li>
+  <li><a href="#step3">3. Retrieve context for a question</a></li>
+  <li><a href="#step4">4. Build the RAG prompt</a></li>
+  <li><a href="#step5">5. (Optional) Connect to an LLM</a></li>
+</ul>
+
+<h2 id="step1">1. Install required libraries</h2>
+<p>Open a terminal or command prompt and run:</p>
+<pre><code>pip install chromadb sentence-transformers
+</code></pre>
+
+<h2 id="step2">2. Create a tiny knowledge base in ChromaDB</h2>
+<p>Create a file called <code>simple_rag_chroma.py</code> and add this code:</p>
+<pre><code>import chromadb
+from sentence_transformers import SentenceTransformer
+
+# 1. Load embedding model (small, fast)
+embed_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# 2. Start ChromaDB client (in-memory)
+chroma_client = chromadb.Client()
+
+# 3. Create a collection (like a table)
+collection = chroma_client.create_collection(name="ittechgenie_docs")
+
+# 4. Some example documents (replace with your own text if you like)
+documents = [
+    "Databricks is a unified analytics platform built on top of Apache Spark.",
+    "Spark is an open-source distributed computing system for big data processing.",
+    "ChromaDB is a vector database used to store and search embeddings.",
+    "RAG stands for Retrieval-Augmented Generation. It combines search and generation.",
+]
+
+# 5. Create embeddings for these documents
+embeddings = embed_model.encode(documents).tolist()
+
+# 6. Add them to the Chroma collection
+ids = [f"doc-{i}" for i in range(len(documents))]
+
+collection.add(
+    documents=documents,
+    embeddings=embeddings,
+    ids=ids
+)
+
+print("✅ Indexed", len(documents), "documents in ChromaDB.")
+</code></pre>
+
+<p>Run the script once:</p>
+<pre><code>python simple_rag_chroma.py
+</code></pre>
+
+<p>You should see something like:</p>
+<pre><code>✅ Indexed 4 documents in ChromaDB.
+</code></pre>
+
+<h2 id="step3">3. Retrieve context for a question</h2>
+<p>Add this function <b>below the previous code</b> in the same file:</p>
+<pre><code>def retrieve_context(question: str, top_k: int = 2):
+    # 1. Embed the question
+    q_embedding = embed_model.encode([question]).tolist()
+
+    # 2. Query Chroma for similar docs
+    result = collection.query(
+        query_embeddings=q_embedding,
+        n_results=top_k
+    )
+
+    # 3. Return the matched documents
+    return result["documents"][0]
+
+# Test it
+if __name__ == "__main__":
+    question = "What is RAG and how does it work?"
+    contexts = retrieve_context(question)
+
+    print("
+🔎 Retrieved context for your question:")
+    for i, c in enumerate(contexts, start=1):
+        print(f"
+--- Context {i} ---")
+        print(c)
+</code></pre>
+
+<p>Run again:</p>
+<pre><code>python simple_rag_chroma.py
+</code></pre>
+
+<p>You should see the document about RAG (and maybe related ones) printed as retrieved context.</p>
+
+<h2 id="step4">4. Build the RAG prompt (generation side)</h2>
+<p>Now we create a function that builds a prompt using the question + retrieved context.</p>
+<p>Add this to the same file:</p>
+<pre><code>def build_rag_prompt(question: str, contexts: list[str]) -> str:
+    context_block = "
+
+".join(contexts)
+    prompt = f"""
+You are an assistant helping a student from ItTechGenie.
+
+Use ONLY the information in the context below to answer the question.
+If the answer is not in the context, say you don't know.
+
+Context:
+{context_block}
+
+Question: {question}
+
+Answer in simple, clear steps:
+"""
+    return prompt
+
+if __name__ == "__main__":
+    question = "What is RAG and why is it used with ChromaDB?"
+    contexts = retrieve_context(question)
+
+    print("
+🔎 Retrieved context:")
+    for i, c in enumerate(contexts, start=1):
+        print(f"
+--- Context {i} ---")
+        print(c)
+
+    prompt = build_rag_prompt(question, contexts)
+    print("
+🧾 Final RAG Prompt to send to LLM:
+")
+    print(prompt)
+</code></pre>
+
+<p>Now when you run the script, you will see:</p>
+<ul>
+  <li>Top <code>top_k</code> matching documents from ChromaDB</li>
+  <li>A combined <b>RAG prompt</b> you can feed to any LLM</li>
+</ul>
+
+<h2 id="step5">5. (Optional) Connect to an LLM</h2>
+<p>This part depends on which LLM you use (OpenAI, local Llama, etc.). Below is a simple
+example using the OpenAI client, just to show how the prompt is used.</p>
+<p><b>Only add this if you already have an API key.</b></p>
+
+<pre><code>from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_API_KEY_HERE")
+
+def ask_llm(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # or any other model you have access to
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+if __name__ == "__main__":
+    question = "What is RAG and why is it useful?"
+    contexts = retrieve_context(question)
+    prompt = build_rag_prompt(question, contexts)
+
+    answer = ask_llm(prompt)
+    print("
+💡 LLM Answer:
+")
+    print(answer)
+</code></pre>
+
+<h2>Summary</h2>
+<ul>
+  <li>ChromaDB stores your documents as embeddings.</li>
+  <li>The embedding model converts text to vectors.</li>
+  <li><code>retrieve_context</code> finds relevant chunks for a question.</li>
+  <li><code>build_rag_prompt</code> creates the final RAG prompt.</li>
+  <li>An LLM (OpenAI, local Llama, etc.) generates the final answer using that prompt.</li>
+</ul>
+
+<p>
+This is a minimal but real example of <b>RAG in action</b> that you can run locally and later
+extend with your own training notes, PDFs, or project documents.
+</p>
+
+</body>
+</html>
