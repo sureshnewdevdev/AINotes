@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gradio Basics – Build Simple AI Web Apps in Python</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    .topbar { background: #0b5ed7; color: white; padding: 14px 20px; font-size: 20px; }
+    .container { max-width: 1100px; margin: 20px auto; background: white; padding: 20px 25px; box-shadow: 0 0 8px rgba(0,0,0,0.08); }
+    h1, h2, h3 { color: #0b5ed7; }
+    pre { background:#f4f4f4; padding:12px; border-radius:4px; overflow:auto; }
+    code { font-family: Consolas, monospace; font-size: 13px; }
+    .box { padding:12px; background:#e8f1ff; border-left:5px solid #0b5ed7; margin:16px 0; }
+    .toc a { text-decoration:none; color:#0b5ed7; }
+    .toc li { margin:4px 0; }
+    .note { background:#fff3cd; border-left:5px solid #ffc107; padding:10px; margin:14px 0; }
+</style>
+</head>
+<body>
+<div class="topbar">Gradio Basics – From Zero to First Web App</div>
+<div class="container">
+<h1>Gradio Basics</h1>
+
+<div class="box">
+<b>What you will learn:</b>
+<ul>
+  <li>What Gradio is and when to use it</li>
+  <li>How to install Gradio</li>
+  <li>How to build a simple “Hello App” in Gradio</li>
+  <li>How to create a small ML-style demo with inputs and outputs</li>
+  <li>How to run and share your Gradio app</li>
+</ul>
+</div>
+
+<h2 id="toc">Table of Contents</h2>
+<ul class="toc">
+  <li><a href="#what">1. What is Gradio?</a></li>
+  <li><a href="#why">2. Why use Gradio?</a></li>
+  <li><a href="#install">3. Installation</a></li>
+  <li><a href="#hello">4. Your first Gradio app (Hello Gradio)</a></li>
+  <li><a href="#io">5. Understanding inputs and outputs</a></li>
+  <li><a href="#ml-demo">6. Mini “AI-like” demo: Simple text analyzer</a></li>
+  <li><a href="#run">7. How to run and stop the app</a></li>
+  <li><a href="#next">8. Next steps and ideas</a></li>
+</ul>
+
+<h2 id="what">1. What is Gradio?</h2>
+<p>
+<b>Gradio</b> is a Python library that allows you to create simple web interfaces for any Python function.
+You can turn a normal Python function into a small web app (with text boxes, buttons, images, etc.) in just a few lines of code.
+</p>
+
+<p>Typical uses:</p>
+<ul>
+  <li>Create a quick web UI for a machine learning model</li>
+  <li>Make a small tool to demo logic or rules</li>
+  <li>Share an interactive app with students or teammates</li>
+</ul>
+
+<div class="note">
+<b>Key idea:</b> If you can write a Python function, you can wrap it with Gradio and show it in the browser.
+No HTML, CSS, or JavaScript required.
+</div>
+
+<h2 id="why">2. Why use Gradio?</h2>
+<ul>
+  <li><b>Very fast to start:</b> a complete app can be less than 10 lines of code.</li>
+  <li><b>No frontend skills needed:</b> Gradio builds the web page for you.</li>
+  <li><b>Great for teaching and demos:</b> learners can “play” with the function and see results.</li>
+  <li><b>Works with any Python function:</b> data science, ML, simple utilities, etc.</li>
+</ul>
+
+<h2 id="install">3. Installation</h2>
+<p>Prerequisite: Python 3.10+ is recommended.</p>
+
+<p>Step 1 – (Optional but recommended) Create a virtual environment:</p>
+<pre><code># On Windows (PowerShell)
+python -m venv gradio_env
+gradio_env\Scripts\activate
+
+# On macOS / Linux
+python3 -m venv gradio_env
+source gradio_env/bin/activate
+</code></pre>
+
+<p>Step 2 – Install Gradio:</p>
+<pre><code>pip install --upgrade gradio
+</code></pre>
+
+<h2 id="hello">4. Your first Gradio app (Hello Gradio)</h2>
+
+<p>Create a file called <code>hello_gradio.py</code> and paste this code:</p>
+
+<pre><code>import gradio as gr
+
+# 1. Normal Python function
+def greet(name):
+    return f"Hello, {name}!"
+
+# 2. Wrap it in a Gradio Interface
+demo = gr.Interface(
+    fn=greet,          # function to run
+    inputs="text",     # what input UI to show
+    outputs="text",    # what output UI to show
+    title="Hello Gradio",
+    description="Type your name and click Submit."
+)
+
+# 3. Launch the app
+if __name__ == "__main__":
+    demo.launch()
+</code></pre>
+
+<p>Run it from the terminal:</p>
+<pre><code>python hello_gradio.py
+</code></pre>
+
+<p>You will see a URL printed in the terminal, for example:</p>
+<pre><code>Running on local URL:  http://127.0.0.1:7860
+</code></pre>
+
+<p>Open that link in your browser. You will see a simple page:</p>
+<ul>
+  <li>A text box for your name</li>
+  <li>A “Submit” button</li>
+  <li>A text area where output appears</li>
+</ul>
+
+<p>Type a name like “Gopi” and click <b>Submit</b>. You should see:</p>
+<pre><code>Hello, Gopi!</code></pre>
+
+<h2 id="io">5. Understanding inputs and outputs</h2>
+
+<p>The line below is the heart of the interface:</p>
+<pre><code>demo = gr.Interface(
+    fn=greet,
+    inputs="text",
+    outputs="text",
+)
+</code></pre>
+
+<ul>
+  <li><code>fn</code> – the Python function to call when the user clicks <b>Submit</b>.</li>
+  <li><code>inputs</code> – describes what UI component to show as input (text box, slider, image, etc.).</li>
+  <li><code>outputs</code> – describes how to show the result (text, label, image, etc.).</li>
+</ul>
+
+<p>You can also use more descriptive components:</p>
+
+<pre><code>import gradio as gr
+
+def greet(name, is_morning):
+    if is_morning:
+        return f"Good morning, {name}!"
+    else:
+        return f"Hello, {name}!"
+    
+demo = gr.Interface(
+    fn=greet,
+    inputs=[
+        gr.Textbox(label="Your name"),
+        gr.Checkbox(label="Is it morning?")
+    ],
+    outputs=gr.Textbox(label="Greeting"),
+    title="Greeting App"
+)
+
+if __name__ == "__main__":
+    demo.launch()
+</code></pre>
+
+<p>This example shows:</p>
+<ul>
+  <li>Multiple inputs (a text box and a checkbox)</li>
+  <li>One labeled output</li>
+</ul>
+
+<h2 id="ml-demo">6. Mini “AI-like” demo: Simple text analyzer</h2>
+
+<p>
+Now, let’s build a tiny “analyzer” that counts words and characters in a sentence.
+This is not a real ML model, but the pattern is the same as for ML:
+<b>take input → process → show result</b>.
+</p>
+
+<p>Create <code>text_analyzer.py</code>:</p>
+
+<pre><code>import gradio as gr
+
+def analyze_text(text):
+    text = text.strip()
+    num_chars = len(text)
+    num_words = len(text.split()) if text else 0
+    
+    summary = (
+        f"Characters: {num_chars}\n"
+        f"Words: {num_words}\n"
+    )
+    # You can add more logic here later (sentiment, keywords, etc.)
+    return summary
+
+demo = gr.Interface(
+    fn=analyze_text,
+    inputs=gr.Textbox(
+        lines=4,
+        label="Enter some text"
+    ),
+    outputs=gr.Textbox(
+        label="Analysis"
+    ),
+    title="Simple Text Analyzer",
+    description="Counts characters and words. You can replace the function with any ML model later."
+)
+
+if __name__ == "__main__":
+    demo.launch()
+</code></pre>
+
+<p>Run it:</p>
+<pre><code>python text_analyzer.py
+</code></pre>
+
+<p>Try entering a sentence like:</p>
+<pre><code>I am learning Gradio to build small AI apps.
+</code></pre>
+
+<p>The output will show something like:</p>
+<pre><code>Characters: 46
+Words: 8
+</code></pre>
+
+<p>Later, you can replace <code>analyze_text</code> with a real ML pipeline or a call to an LLM.</p>
+
+<h2 id="run">7. How to run and stop the app</h2>
+
+<p><b>To run:</b></p>
+<ul>
+  <li>Make sure your virtual environment (if used) is activated.</li>
+  <li>Run <code>python your_file_name.py</code>.</li>
+  <li>Open the printed local URL in a browser.</li>
+</ul>
+
+<p><b>To stop:</b></p>
+<ul>
+  <li>Go back to the terminal where the app is running.</li>
+  <li>Press <b>Ctrl + C</b> to stop the server.</li>
+</ul>
+
+<h2 id="next">8. Next steps and ideas</h2>
+<p>Once you are comfortable with the basics, you can explore:</p>
+<ul>
+  <li>Image inputs and outputs (for image classification or editing)</li>
+  <li>Audio inputs (speech recognition, emotion detection)</li>
+  <li>Chat-style interfaces for LLMs (using <code>gr.ChatInterface</code>)</li>
+  <li>Deploying your Gradio app on Hugging Face Spaces or other hosting</li>
+</ul>
+
+<p>
+You can also combine Gradio with other tools you already use: local ML models, APIs, or RAG backends.
+Whenever you write a Python function and think “I wish I had a simple UI for this,” Gradio is a great option.
+</p>
+
+</div>
+</body>
+</html>
